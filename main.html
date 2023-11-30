@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="libs/twgl.js/dist/5.x/twgl-full.js"></script>
+</head>
+
+<body>
+  <title>Projeto</title>
+  <canvas id="c"></canvas>
+</body>
+<script id="vs" type="notjs">
+uniform mat4 u_worldViewProjection;
+uniform vec3 u_lightWorldPos;
+uniform mat4 u_world;
+uniform mat4 u_viewInverse;
+uniform mat4 u_worldInverseTranspose;
+
+attribute vec4 position;
+attribute vec3 normal;
+attribute vec2 texcoord;
+
+varying vec4 v_position;
+varying vec2 v_texCoord;
+varying vec3 v_normal;
+varying vec3 v_surfaceToLight;
+varying vec3 v_surfaceToView;
+
+void main() {
+  v_texCoord = texcoord;
+  v_position = u_worldViewProjection * position;
+  v_normal = (u_worldInverseTranspose * vec4(normal, 0)).xyz;
+  
+  // to complete
+  v_surfaceToLight = u_lightWorldPos - (u_world * position).xyz;
+  v_surfaceToView = (u_viewInverse[3] - (u_world * position)).xyz;
+  
+  gl_Position = v_position;
+}
+  </script>
+<script id="fs" type="notjs">
+precision mediump float;
+
+varying vec4 v_position;
+varying vec2 v_texCoord;
+varying vec3 v_normal;
+varying vec3 v_surfaceToLight;
+varying vec3 v_surfaceToView;
+
+uniform vec4 u_lightColor;
+uniform vec4 u_ambient;
+uniform sampler2D u_diffuse;
+uniform vec4 u_specular;
+uniform float u_shininess;
+uniform float u_specularFactor;
+
+vec4 lit(float l ,float h, float m) {
+  return vec4(1.0,
+              max(l, 0.0),
+              (l > 0.0) ? pow(max(0.0, h), m) : 0.0,
+              1.0);
+//   return vec4(ambient, diffuse, specular, 1.0);
+}
+
+void main() {
+  vec4 diffuseColor = texture2D(u_diffuse, v_texCoord);
+  vec3 a_normal = normalize(v_normal);
+  vec3 surfaceToLight = normalize(v_surfaceToLight);
+  vec3 surfaceToView = normalize(v_surfaceToView);
+
+  vec3 halfVector = normalize(surfaceToLight + surfaceToView);
+
+  vec4 litR = lit(dot(a_normal, surfaceToLight),
+                  dot(a_normal, halfVector), u_shininess);
+
+  vec4 outColor = vec4((
+    u_lightColor * (diffuseColor * litR.y + diffuseColor * u_ambient +
+    u_specular * litR.z * u_specularFactor)).rgb,
+    diffuseColor.a);
+
+  gl_FragColor = outColor;
+}
+
+
+
+  </script>
+  
+  <script type="module">
+    const m4 = twgl.m4;
+    const gl = document.querySelector("canvas").getContext("webgl");
+    const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
+  
+    //Sol, planetas e lua
+    const sun = twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20);
+    const mercury = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
+    const earth = twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20);
+    const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
+    const mars = twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20);
+    const jupiter = twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20);
+
+    //fundo preto
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  
+    const tex = twgl.createTexture(gl, {
+      min: gl.NEAREST,
+      mag: gl.NEAREST,
+      src: [
+        255, 255, 255, 255,
+        192, 192, 192, 255,
+        192, 192, 192, 255,
+        255, 255, 255, 255,
+      ],
+    });
+    
+    const state = {
+      eye: [0, 30, -40],
+      target: [0, 0, 0],
+      up: [0, 1, 0],
+      //dragging: false,
+      lastX: 0,
+      lastY: 0,
+      /*keys: {
+        ArrowUp: false,
+        ArrowDown: false,
+        ArrowLeft: false,
+        ArrowRight: false,
+      },*/
+      speed: 0.1,
+    };
+  
+    const uniforms = {
+      u_lightWorldPos: [0, 11, 0], //a colocar na [0,0,0]
+      u_lightColor: [1, 0.8, 0.8, 1],
+      u_ambient: [0, 0, 0, 1],
+      u_specular: [1, 1, 1, 1],
+      u_shininess: 50,
+      u_specularFactor: 1,
+      u_diffuse: tex,
+    };
+  /*
+    function handleMouseDown(event) {
+      event.preventDefault();
+      state.dragging = true;
+      state.lastX = event.clientX;
+      state.lastY = event.clientY;
+    }
+  
+    function handleMouseUp() {
+      state.dragging = false;
+    }
+  
+    function handleMouseMove(event) {
+      if (!state.dragging) return;
+  
+      const deltaX = event.clientX - state.lastX;
+      const deltaY = event.clientY - state.lastY;
+  
+      const sensitivity = 0.005;
+      const theta = deltaX * sensitivity;
+      const phi = deltaY * sensitivity;
+  
+      state.lastX = event.clientX;
+      state.lastY = event.clientY;
+  
+      // Atualiza a posição e orientação da câmera
+      const forward = m4.subtractVectors(state.target, state.eye);
+      const right = m4.cross(state.up, forward);
+      const up = m4.cross(forward, right);
+  
+      const rotationX = m4.axisRotation(right, phi);
+      const rotationY = m4.axisRotation(up, theta);
+  
+      const rotation = m4.multiply(rotationX, rotationY);
+  
+      state.eye = m4.transformPoint(rotation, state.eye);
+      state.target = m4.transformPoint(rotation, state.target);
+      state.up = m4.transformPoint(rotation, state.up);
+  
+      // Atualiza a matriz de visualização
+      const camera = m4.lookAt(state.eye, state.target, state.up);
+      uniforms.u_viewInverse = camera;
+  
+      // Redesenha a cena
+      render();
+    }
+  
+    function handleKeyDown(event) {
+      state.keys[event.code] = true;
+      updateCamera();
+    }
+  
+    function handleKeyUp(event) {
+      state.keys[event.code] = false;
+      updateCamera();
+    }
+  
+    function updateCamera() {
+      if (state.keys.ArrowUp) {
+        const forward = m4.subtractVectors(state.target, state.eye);
+        const movement = m4.scale(forward, state.speed);
+        state.eye = m4.addVectors(state.eye, movement);
+        state.target = m4.addVectors(state.target, movement);
+      }
+      if (state.keys.ArrowDown) {
+        const forward = m4.subtractVectors(state.target, state.eye);
+        const movement = m4.scale(forward, state.speed);
+        state.eye = m4.subtractVectors(state.eye, movement);
+        state.target = m4.subtractVectors(state.target, movement);
+      }
+      if (state.keys.ArrowLeft) {
+        const right = m4.cross(state.up, m4.subtractVectors(state.target, state.eye));
+        const movement = m4.scale(right, state.speed);
+        state.eye = m4.addVectors(state.eye, movement);
+        state.target = m4.addVectors(state.target, movement);
+      }
+      if (state.keys.ArrowRight) {
+        const right = m4.cross(state.up, m4.subtractVectors(state.target, state.eye));
+        const movement = m4.scale(right, state.speed);
+        state.eye = m4.subtractVectors(state.eye, movement);
+        state.target = m4.subtractVectors(state.target, movement);
+      }
+    }
+
+  */
+    function render(time) {
+      // Atualizações de câmera e tempo
+      //updateCamera();
+      time *= 0.001;
+
+      // Configurações de canvas
+      const canvas = gl.canvas;
+      twgl.resizeCanvasToDisplaySize(canvas);
+      
+      // Define explicitamente o tamanho do canvas
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // Configurações WebGL
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.enable(gl.DEPTH_TEST);
+      gl.enable(gl.CULL_FACE);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      // Configurações de projeção e visão
+      const fov = 30 * Math.PI / 180;
+      const aspect = canvas.width / canvas.height;
+      const zNear = 0.5;
+      const zFar = 75;
+      const projection = m4.perspective(fov, aspect, zNear, zFar);
+      const view = m4.inverse(m4.lookAt(state.eye, state.target, state.up));
+      const viewProjection = m4.multiply(projection, view);
+
+      // Configurações do sol (sun)
+      const sunRotation = m4.rotationY(time);
+      const sunTranslation = m4.translation([0, 0, 0]); // Posição do sol no centro
+      const sunWorld = m4.multiply(sunTranslation, sunRotation);
+
+      uniforms.u_world = sunWorld;
+      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(sunWorld));
+      uniforms.u_worldViewProjection = m4.multiply(viewProjection, sunWorld);
+
+      gl.useProgram(programInfo.program);
+      twgl.setBuffersAndAttributes(gl, programInfo, sun);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, sun);
+
+      // Configurações de Mercurio (mercury)
+      const merc_Rotation = m4.rotationY(time*10);  // Mantém a rotação em torno do próprio eixo y
+      const merc_orbitRadius = 5;  // Raio da órbita
+      const merc_Translation = m4.translation([Math.sin(time*2) * merc_orbitRadius, 0, Math.cos(time*2) * merc_orbitRadius]);
+      const merc_World = m4.multiply(merc_Translation, merc_Rotation);
+
+      uniforms.u_world = merc_World;
+      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(merc_World));
+      uniforms.u_worldViewProjection = m4.multiply(viewProjection, merc_World);
+
+
+      gl.useProgram(programInfo.program);
+      twgl.setBuffersAndAttributes(gl, programInfo, earth);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, earth);
+
+      // Configurações da Terra (earth)
+      const earth_Rotation = m4.rotationY(time*50);  // Mantém a rotação em torno do próprio eixo y
+      const earth_OrbitRadius = 10;  // Raio da órbita
+      const earth_Translation = m4.translation([Math.sin(time) * earth_OrbitRadius, 0, Math.cos(time) * earth_OrbitRadius]);
+      const earth_World = m4.multiply(earth_Translation, earth_Rotation);
+
+      uniforms.u_world = earth_World;
+      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(earth_World));
+      uniforms.u_worldViewProjection = m4.multiply(viewProjection, earth_World);
+
+
+      gl.useProgram(programInfo.program);
+      twgl.setBuffersAndAttributes(gl, programInfo, earth);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, earth);
+
+      // Configurações da Lua (moon)
+      const moon_World = m4.multiply(earth_World, m4.rotationY(time)); // Rotação da lua
+
+      const moon_OrbitRadius = 1.5;
+      const moon_OrbitPosition = [Math.cos(time * 2) * moon_OrbitRadius, 0, Math.sin(time * 2) * moon_OrbitRadius];
+      const moon_Position = m4.translation(moon_OrbitPosition);
+
+      m4.multiply(moon_Position, moon_World, moon_World);
+
+      uniforms.u_world = moon_World;
+      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(moon_World));
+      uniforms.u_worldViewProjection = m4.multiply(viewProjection, moon_World);
+
+      twgl.setBuffersAndAttributes(gl, programInfo, moon);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, moon);
+
+
+      // Configurações de Marte (mars)
+      const mars_Rotation = m4.rotationY(time*25);  // Mantém a rotação em torno do próprio eixo y
+      const mars_OrbitRadius = 15;  // Raio da órbita
+      const mars_Translation = m4.translation([Math.sin(time*0.7) * mars_OrbitRadius, 0, Math.cos(time*0.7) * mars_OrbitRadius]);
+      const mars_World = m4.multiply(mars_Translation, mars_Rotation);
+
+      uniforms.u_world = mars_World;
+      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(mars_World));
+      uniforms.u_worldViewProjection = m4.multiply(viewProjection, mars_World);
+
+
+      gl.useProgram(programInfo.program);
+      twgl.setBuffersAndAttributes(gl, programInfo, mars);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, mars);
+
+      // Configurações da Jupiter
+      const jupiter_Rotation = m4.rotationY(time*10);  // Mantém a rotação em torno do próprio eixo y
+      const jupiter_OrbitRadius = 20;  // Raio da órbita
+      const jupiter_Translation = m4.translation([Math.sin(time*0.5) * jupiter_OrbitRadius, 0, Math.cos(time*0.5) * jupiter_OrbitRadius]);
+      const jupiter_World = m4.multiply(jupiter_Translation, jupiter_Rotation);
+
+      uniforms.u_world = jupiter_World;
+      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(jupiter_World));
+      uniforms.u_worldViewProjection = m4.multiply(viewProjection, jupiter_World);
+
+
+      gl.useProgram(programInfo.program);
+      twgl.setBuffersAndAttributes(gl, programInfo, jupiter);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, jupiter);
+
+      // Solicita o próximo frame de animação
+      requestAnimationFrame(render);
+    }
+
+
+    requestAnimationFrame(render);
+    
+    // Adiciona os ouvintes de eventos
+    /*window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);*/
+  
+    /* Inicializa a cena
+    function animate() {
+      render();
+      
+    }*/
+  
+    //animate(); // Chama apenas uma vez para iniciar a animação
+  </script>
+  
+
+</html>

@@ -133,14 +133,46 @@ void main() {
       
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background
     const state = {
-      eye: [0, 30, -40],
+      eye: [0, 30, 40],
       target: [0, 0, 0],
       up: [0, 1, 0],
       lastX: 0,
       lastY: 0,
-      speed: 0.1,
+      speed: 1,
     };
-  
+    
+    window.addEventListener('keydown', handleKeyDown);
+
+    function handleKeyDown(event) {
+      const keyCode = event.keyCode;
+      switch (keyCode) {
+        case 37: // Left Arrow
+          state.eye[0] -= state.speed;
+          state.target[0] -= state.speed;
+          break;
+        case 39: // Right Arrow
+          state.eye[0] += state.speed;
+          state.target[0] += state.speed;
+          break;
+        case 38: // Up Arrow
+          state.eye[2] -= state.speed;
+          state.target[2] -= state.speed;
+          break;
+        case 40: // Down Arrow
+          state.eye[2] += state.speed;
+          state.target[2] += state.speed;
+          break;
+        case 107: // "+"
+          state.eye[1] -= state.speed;
+          state.target[1] -= state.speed;
+          break;
+        case 109: // "-"
+          state.eye[1] += state.speed;
+          state.target[1] += state.speed;
+          break;
+      }
+    }
+
     const uniforms = {
       u_lightWorldPos: sun.worldMatrix,
       u_lightColor: [1, 0.8, 0.8, 1],
@@ -154,7 +186,7 @@ void main() {
 
     function render(time) {
       // Atualizações de câmera e tempo
-      //updateCamera();
+
       time *= 0.001;
 
       // Configurações de canvas

@@ -138,37 +138,93 @@ void main() {
       up: [0, 1, 0],
       lastX: 0,
       lastY: 0,
-      speed: 1,
+      speed: 0.5,
     };
     
+    let isDragging = false;
+
     window.addEventListener('keydown', handleKeyDown);
+    
+    // Event listeners para o mouse
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('wheel', handleWheel);
+
+    function handleWheel(event) {
+      const zoomSpeed = 0.1; // Ajuste conforme necessário
+      const delta = event.deltaY;
+
+      // Atualiza a posição da câmera na dimensão Z
+      const zoomDelta =(delta * zoomSpeed)/15;
+      if (state.eye[0] >= 0) {
+        state.eye[0] += zoomDelta;
+      }
+      else{
+        state.eye[0] -= zoomDelta;
+      }
+      if (state.eye[1] >= 0) {
+        state.eye[1] += zoomDelta;
+      }
+      else{
+        state.eye[1] -= zoomDelta;
+      }
+      if (state.eye[2] >= 0) {
+        state.eye[2] += zoomDelta;
+      }
+      else{
+        state.eye[2] -= zoomDelta;
+      }
+    }
+
+    function handleMouseDown(event) {
+      isDragging = true;
+      state.lastX = event.clientX;
+      state.lastY = event.clientY;
+    }
+
+    function handleMouseMove(event) {
+      if (isDragging) {
+        
+        const deltaX = event.clientX - state.lastX;
+        const deltaY = event.clientY - state.lastY;
+
+        const sensitivity = 0.1; // Mouse sensibility (adjust if necessary)
+
+        // Rotations
+        const rotationMatrixX = m4.rotationY(deltaX * sensitivity);
+        const rotationMatrixY = m4.rotationX(deltaY * sensitivity);
+
+        // Refresh the new cam and target positions
+        state.eye = m4.transformPoint(rotationMatrixX, state.eye);
+        state.target = m4.transformPoint(rotationMatrixX, state.target);
+        state.eye = m4.transformPoint(rotationMatrixY, state.eye);
+        state.target = m4.transformPoint(rotationMatrixY, state.target);
+
+        state.lastX = event.clientX;
+        state.lastY = event.clientY;
+      }
+    }
+
+    function handleMouseUp() {
+      isDragging = false;
+    }
+
 
     function handleKeyDown(event) {
       const keyCode = event.keyCode;
       switch (keyCode) {
         case 37: // Left Arrow
-          state.eye[0] -= state.speed;
           state.target[0] -= state.speed;
           break;
         case 39: // Right Arrow
-          state.eye[0] += state.speed;
           state.target[0] += state.speed;
           break;
         case 38: // Up Arrow
-          state.eye[2] -= state.speed;
           state.target[2] -= state.speed;
           break;
-        case 40: // Down Arrow
-          state.eye[2] += state.speed;
+        case 40: // Down Arrow 
           state.target[2] += state.speed;
-          break;
-        case 107: // "+"
-          state.eye[1] -= state.speed;
-          state.target[1] -= state.speed;
-          break;
-        case 109: // "-"
-          state.eye[1] += state.speed;
-          state.target[1] += state.speed;
           break;
       }
     }

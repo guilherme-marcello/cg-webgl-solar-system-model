@@ -56,7 +56,7 @@ uniform float u_specularFactor;
 
 vec4 lit(float l ,float h, float m) {
   return vec4(1.0,
-              max(l, 0.0),
+              max(abs(l), 0.0),
               (l > 0.0) ? pow(max(0.0, h), m) : 0.0,
               1.0);
 //   return vec4(ambient, diffuse, specular, 1.0);
@@ -168,7 +168,7 @@ void main() {
     };
   
     const uniforms = {
-      u_lightWorldPos: [0, 11, 0], //a colocar na [0,0,0]
+      u_lightWorldPos: sun.worldMatrix,
       u_lightColor: [1, 0.8, 0.8, 1],
       u_ambient: [0, 0, 0, 1],
       u_specular: [1, 1, 1, 1],

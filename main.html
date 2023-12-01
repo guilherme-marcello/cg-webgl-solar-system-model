@@ -105,20 +105,11 @@ void main() {
         }
     }
 
+
     const m4 = twgl.m4;
     const gl = document.querySelector("canvas").getContext("webgl");
     const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
-  
-    //Sol, planetas e lua
-    const sun = twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20);
-    const mercury = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
-    const earth = twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20);
-    const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
-    const mars = twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20);
-    const jupiter = twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20);
 
-    //fundo preto
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     const tex = twgl.createTexture(gl, {
       min: gl.NEAREST,
       mag: gl.NEAREST,
@@ -129,7 +120,39 @@ void main() {
         255, 255, 255, 255,
       ],
     });
+
+    // bodies
+    const sun = new CelestialBody(
+        "Sun", twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20), tex, (time) => m4.rotationY(1*time), (time) => m4.translation([0, 0, 0])
+    );
+
+    const mercury = new CelestialBody(
+        "Mercury", twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20), tex, (time) => m4.rotationY(10*time), (time) => m4.translation([5*Math.sin(2*time), 0, 5*Math.cos(2*time)])
+    );
+
+    const earth = new CelestialBody(
+        "Earth", twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20), tex, (time) => m4.rotationY(50*time), (time) => m4.translation([10*Math.sin(time), 0, 10*Math.cos(time)])
+    );
+
+    const mars = new CelestialBody(
+        "Mars", twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20), tex, (time) => m4.rotationY(25*time), (time) => m4.translation([15*Math.sin(0.7*time), 0, 15*Math.cos(0.7*time)])
+    );
+
+    const jupiter = new CelestialBody(
+        "Jupiter", twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20), tex, (time) => m4.rotationY(10*time), (time) => m4.translation([20*Math.sin(0.5*time), 0, 20*Math.cos(0.5*time)])
+    );
+
+    const celestial_bodies = [
+        sun,
+        mercury,
+        earth,
+        mars,
+        jupiter
+    ];
+  
+    const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
     
+    gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background
     const state = {
       eye: [0, 30, -40],
       target: [0, 0, 0],
@@ -177,105 +200,40 @@ void main() {
       const view = m4.inverse(m4.lookAt(state.eye, state.target, state.up));
       const viewProjection = m4.multiply(projection, view);
 
-      // Configurações do sol (sun)
-      const sunRotation = m4.rotationY(time);
-      const sunTranslation = m4.translation([0, 0, 0]); // Posição do sol no centro
-      const sunWorld = m4.multiply(sunTranslation, sunRotation);
+      celestial_bodies.forEach((body, index) => {
+        body.updateWorldMatrix(time);
+        uniforms.u_world = body.worldMatrix;
+        uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(body.worldMatrix));
+        uniforms.u_worldViewProjection = m4.multiply(viewProjection, body.worldMatrix);
+        uniforms.u_diffuse = body.texture;
 
-      uniforms.u_world = sunWorld;
-      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(sunWorld));
-      uniforms.u_worldViewProjection = m4.multiply(viewProjection, sunWorld);
+        gl.useProgram(programInfo.program);
+        twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
+        twgl.setUniforms(programInfo, uniforms);
+        twgl.drawBufferInfo(gl, body.buffer);
 
-      gl.useProgram(programInfo.program);
-      twgl.setBuffersAndAttributes(gl, programInfo, sun);
-      twgl.setUniforms(programInfo, uniforms);
-      twgl.drawBufferInfo(gl, sun);
+      })
 
-      // Configurações de Mercurio (mercury)
-      const merc_Rotation = m4.rotationY(time*10);  // Mantém a rotação em torno do próprio eixo y
-      const merc_orbitRadius = 5;  // Raio da órbita
-      const merc_Translation = m4.translation([Math.sin(time*2) * merc_orbitRadius, 0, Math.cos(time*2) * merc_orbitRadius]);
-      const merc_World = m4.multiply(merc_Translation, merc_Rotation);
-
-      uniforms.u_world = merc_World;
-      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(merc_World));
-      uniforms.u_worldViewProjection = m4.multiply(viewProjection, merc_World);
-
-
-      gl.useProgram(programInfo.program);
-      twgl.setBuffersAndAttributes(gl, programInfo, earth);
-      twgl.setUniforms(programInfo, uniforms);
-      twgl.drawBufferInfo(gl, earth);
-
-      // Configurações da Terra (earth)
-      const earth_Rotation = m4.rotationY(time*50);  // Mantém a rotação em torno do próprio eixo y
-      const earth_OrbitRadius = 10;  // Raio da órbita
-      const earth_Translation = m4.translation([Math.sin(time) * earth_OrbitRadius, 0, Math.cos(time) * earth_OrbitRadius]);
-      const earth_World = m4.multiply(earth_Translation, earth_Rotation);
-
-      uniforms.u_world = earth_World;
-      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(earth_World));
-      uniforms.u_worldViewProjection = m4.multiply(viewProjection, earth_World);
-
-
-      gl.useProgram(programInfo.program);
-      twgl.setBuffersAndAttributes(gl, programInfo, earth);
-      twgl.setUniforms(programInfo, uniforms);
-      twgl.drawBufferInfo(gl, earth);
 
       // Configurações da Lua (moon)
-      const moon_World = m4.multiply(earth_World, m4.rotationY(time)); // Rotação da lua
-
+      const moon_World = m4.multiply(earth.worldMatrix, m4.rotationY(time)); // Rotação da lua
       const moon_OrbitRadius = 1.5;
       const moon_OrbitPosition = [Math.cos(time * 2) * moon_OrbitRadius, 0, Math.sin(time * 2) * moon_OrbitRadius];
       const moon_Position = m4.translation(moon_OrbitPosition);
-
       m4.multiply(moon_Position, moon_World, moon_World);
-
       uniforms.u_world = moon_World;
       uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(moon_World));
       uniforms.u_worldViewProjection = m4.multiply(viewProjection, moon_World);
-
       twgl.setBuffersAndAttributes(gl, programInfo, moon);
       twgl.setUniforms(programInfo, uniforms);
       twgl.drawBufferInfo(gl, moon);
 
 
-      // Configurações de Marte (mars)
-      const mars_Rotation = m4.rotationY(time*25);  // Mantém a rotação em torno do próprio eixo y
-      const mars_OrbitRadius = 15;  // Raio da órbita
-      const mars_Translation = m4.translation([Math.sin(time*0.7) * mars_OrbitRadius, 0, Math.cos(time*0.7) * mars_OrbitRadius]);
-      const mars_World = m4.multiply(mars_Translation, mars_Rotation);
-
-      uniforms.u_world = mars_World;
-      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(mars_World));
-      uniforms.u_worldViewProjection = m4.multiply(viewProjection, mars_World);
-
-
-      gl.useProgram(programInfo.program);
-      twgl.setBuffersAndAttributes(gl, programInfo, mars);
-      twgl.setUniforms(programInfo, uniforms);
-      twgl.drawBufferInfo(gl, mars);
-
-      // Configurações da Jupiter
-      const jupiter_Rotation = m4.rotationY(time*10);  // Mantém a rotação em torno do próprio eixo y
-      const jupiter_OrbitRadius = 20;  // Raio da órbita
-      const jupiter_Translation = m4.translation([Math.sin(time*0.5) * jupiter_OrbitRadius, 0, Math.cos(time*0.5) * jupiter_OrbitRadius]);
-      const jupiter_World = m4.multiply(jupiter_Translation, jupiter_Rotation);
-
-      uniforms.u_world = jupiter_World;
-      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(jupiter_World));
-      uniforms.u_worldViewProjection = m4.multiply(viewProjection, jupiter_World);
-
-
-      gl.useProgram(programInfo.program);
-      twgl.setBuffersAndAttributes(gl, programInfo, jupiter);
-      twgl.setUniforms(programInfo, uniforms);
-      twgl.drawBufferInfo(gl, jupiter);
-
       // Solicita o próximo frame de animação
       requestAnimationFrame(render);
     }
+
+
     requestAnimationFrame(render);
   </script>
   

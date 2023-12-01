@@ -181,7 +181,8 @@ void main() {
       u_shininess: 50,
       u_specularFactor: 1,
       u_diffuse: default_texture,
-      u_is_light_source: 0
+      u_is_light_source: 0,
+      u_draw_orbits: 1
     };
 
     function render(time) {
@@ -228,6 +229,15 @@ void main() {
         twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
         twgl.setUniforms(programInfo, uniforms);
         twgl.drawBufferInfo(gl, body.buffer);
+
+        if (uniforms.u_draw_orbits == 1 && body.pathBuffer) {
+          //console.log("Adding path of " + body.name);
+          uniforms.u_is_light_source = 1;
+          gl.useProgram(programInfo.program);
+          twgl.setBuffersAndAttributes(gl, programInfo, body.pathBuffer);
+          twgl.setUniforms(programInfo, uniforms);
+          twgl.drawBufferInfo(gl, body.pathBuffer, gl.TRIANGLE_STRIP);      
+        }
 
       })
 

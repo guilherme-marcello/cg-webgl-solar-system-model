@@ -5,14 +5,34 @@ const m4 = twgl.m4;
 class CelestialBody {
     constructor(name, buffer, texture, rotationFunction, translationFunction) {
         this.name = name
-        this.buffer = buffer;
-        this.worldMatrix = twgl.m4.identity();
 
-        this.texture = texture;
-        
         this.rotationFunction = rotationFunction;
         this.translationFunction = translationFunction;
+
+        this.buffer = buffer;
+        this.pathBuffer = null;
+        
+        this.worldMatrix = twgl.m4.identity();
+        this.texture = texture;
+
     }
+
+    createOrbitPath(gl, n_points) {
+        const path = [];
+        const thickness = 20;
+        for (let i = 0; i <= n_points; i++) {
+            const time = (i / n_points) * 2 * Math.PI;
+            const translationMatrix = this.translationFunction(time);
+            const point = twgl.m4.transformPoint(translationMatrix, [0, 0, 0, 0]);
+            path.push(point[0] + thickness, point[1] + thickness, point[2] + thickness, point[0] - thickness, point[1] - thickness, point[2] - thickness);
+        }
+
+        this.pathBuffer = twgl.createBufferInfoFromArrays(gl, {
+            position: { numComponents: 3, data: new Float32Array(path) },
+        });
+    }
+    
+    
 
     updateWorldMatrix(time) {
         const rotation = this.rotationFunction(time);
@@ -70,13 +90,16 @@ function createMercury(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
         rotationF,
         translationF
     );
+
+    body.createOrbitPath(gl, 2000);
+    return body;
 }
 
 function createEarth(gl, timescale) {
@@ -104,13 +127,16 @@ function createEarth(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
         rotationF,
         translationF
     );
+
+    body.createOrbitPath(gl, 2000);
+    return body;
 }
 
 function createMars(gl, timescale) {

@@ -143,10 +143,12 @@ void main() {
         "Mars", twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20), twgl.createTexture(gl, { src: 'textures/mars.jpeg' }), (time) => m4.rotationY(25*time), (time) => m4.translation([15*Math.sin(0.7*time), 0, 15*Math.cos(0.7*time)])
     );
 
+    // texture src: https://svs.gsfc.nasa.gov/12021
     const jupiter = new CelestialBody(
-        "Jupiter", twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20), null, (time) => m4.rotationY(10*time), (time) => m4.translation([20*Math.sin(0.5*time), 0, 20*Math.cos(0.5*time)])
+        "Jupiter", twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20), twgl.createTexture(gl, { src: 'textures/jupiter.jpeg' }), (time) => m4.rotationY(10*time), (time) => m4.translation([20*Math.sin(0.5*time), 0, 20*Math.cos(0.5*time)])
     );
 
+    const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
     const celestial_bodies = [
         sun,
         mercury,
@@ -154,9 +156,7 @@ void main() {
         mars,
         jupiter
     ];
-  
-    const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
-    
+      
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background
     const state = {
       eye: [0, 30, -40],

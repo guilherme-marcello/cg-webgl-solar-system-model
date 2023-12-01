@@ -103,12 +103,13 @@ void main() {
       ],
     });
 
+    let timescale = 15 / 365; // 15 seconds per 365 days
     // bodies
-    const sun = CelestialEntities.create(gl, "Sun");
-    const mercury = CelestialEntities.create(gl, "Mercury");
-    const earth = CelestialEntities.create(gl, "Earth");
-    const mars = CelestialEntities.create(gl, "Mars");
-    const jupiter = CelestialEntities.create(gl, "Jupiter");
+    const sun = CelestialEntities.create(gl, timescale, "Sun");
+    const mercury = CelestialEntities.create(gl, timescale, "Mercury");
+    const earth = CelestialEntities.create(gl, timescale, "Earth");
+    const mars = CelestialEntities.create(gl, timescale, "Mars");
+    const jupiter = CelestialEntities.create(gl, timescale, "Jupiter");
 
     const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
     const celestial_bodies = [

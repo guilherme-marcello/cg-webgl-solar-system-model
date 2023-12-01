@@ -77,7 +77,7 @@ void main() {
     temp = lit(dot(a_normal, surfaceToLight), dot(a_normal, halfVector), u_shininess);
   }
   else {
-    temp = vec4(0.7, 0.7, 0.7, 1.0);
+    temp = lit(abs(dot(a_normal, surfaceToLight)), dot(a_normal, halfVector), u_shininess);
   }
 
   vec4 litR = temp;
@@ -133,7 +133,7 @@ void main() {
       
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background
     const state = {
-      eye: [0, 65, 1],
+      eye: [0, 30, -40],
       target: [0, 0, 0],
       up: [0, 1, 0],
       lastX: 0,
@@ -191,7 +191,6 @@ void main() {
         } else {
           uniforms.u_is_light_source = 0;
         }
-        console.log("Setting " + uniforms.u_is_light_source + " for biody " + body.name);
 
         gl.useProgram(programInfo.program);
         twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
@@ -204,7 +203,7 @@ void main() {
       // Configurações da Lua (moon)
       const moon_World = m4.multiply(earth.worldMatrix, m4.rotationY(time)); // Rotação da lua
       const moon_OrbitRadius = 1.5;
-      const moon_OrbitPosition = [Math.cos(time * 2) * moon_OrbitRadius, 0, Math.sin(time * 2) * moon_OrbitRadius];
+      const moon_OrbitPosition = [Math.cos(time * 2) * moon_OrbitRadius, Math.cos(time), Math.sin(time * 2) * moon_OrbitRadius];
       const moon_Position = m4.translation(moon_OrbitPosition);
       m4.multiply(moon_Position, moon_World, moon_World);
       uniforms.u_world = moon_World;

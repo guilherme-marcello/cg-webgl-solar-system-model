@@ -132,8 +132,9 @@ void main() {
         "Mercury", twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20), null, (time) => m4.rotationY(10*time), (time) => m4.translation([5*Math.sin(2*time), 0, 5*Math.cos(2*time)])
     );
 
+    // texture src: https://visibleearth.nasa.gov/images/73580/january-blue-marble-next-generation-w-topography-and-bathymetry
     const earth = new CelestialBody(
-        "Earth", twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20), null, (time) => m4.rotationY(50*time), (time) => m4.translation([10*Math.sin(time), 0, 10*Math.cos(time)])
+        "Earth", twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20), twgl.createTexture(gl, { src: 'textures/earth.jpg' }), (time) => m4.rotationY(50*time), (time) => m4.translation([10*Math.sin(time), 0, 10*Math.cos(time)])
     );
 
     const mars = new CelestialBody(

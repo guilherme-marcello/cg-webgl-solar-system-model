@@ -86,6 +86,25 @@ void main() {
   </script>
   
   <script type="module">
+    class CelestialBody {
+        constructor(name, buffer, texture, rotationFunction, translationFunction) {
+            this.name = name
+            this.buffer = buffer;
+            this.worldMatrix = m4.identity();
+
+            this.texture = texture;
+            
+            this.rotationFunction = rotationFunction;
+            this.translationFunction = translationFunction;
+        }
+
+        updateWorldMatrix(time) {
+            const rotation = this.rotationFunction(time);
+            const translation = this.translationFunction(time);
+            this.worldMatrix = m4.multiply(translation, rotation);
+        }
+    }
+
     const m4 = twgl.m4;
     const gl = document.querySelector("canvas").getContext("webgl");
     const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);

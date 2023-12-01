@@ -122,6 +122,8 @@ void main() {
     });
 
     // bodies
+
+    // texture src: https://svs.gsfc.nasa.gov/30362
     const sun = new CelestialBody(
         "Sun", twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20), twgl.createTexture(gl, { src: 'textures/sun.jpeg' }), (time) => m4.rotationY(1*time), (time) => m4.translation([0, 0, 0])
     );

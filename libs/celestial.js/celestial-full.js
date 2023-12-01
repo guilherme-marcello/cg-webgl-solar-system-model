@@ -26,7 +26,7 @@ function createSun(gl, timescale) {
     let name = "Sun";
     let dayPeriod = 27;
 
-    let buffer = twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20);
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 2.5, 50, 50);
     let texture = twgl.createTexture(gl, { src: 'textures/sun.jpeg' });
 
     let rotationPeriod = timescale * dayPeriod;

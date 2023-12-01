@@ -110,7 +110,7 @@ void main() {
     const gl = document.querySelector("canvas").getContext("webgl");
     const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
 
-    const tex = twgl.createTexture(gl, {
+    const default_texture = twgl.createTexture(gl, {
       min: gl.NEAREST,
       mag: gl.NEAREST,
       src: [
@@ -123,23 +123,23 @@ void main() {
 
     // bodies
     const sun = new CelestialBody(
-        "Sun", twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20), tex, (time) => m4.rotationY(1*time), (time) => m4.translation([0, 0, 0])
+        "Sun", twgl.primitives.createSphereBufferInfo(gl, 2.5, 20, 20), twgl.createTexture(gl, { src: 'textures/sun.jpeg' }), (time) => m4.rotationY(1*time), (time) => m4.translation([0, 0, 0])
     );
 
     const mercury = new CelestialBody(
-        "Mercury", twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20), tex, (time) => m4.rotationY(10*time), (time) => m4.translation([5*Math.sin(2*time), 0, 5*Math.cos(2*time)])
+        "Mercury", twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20), null, (time) => m4.rotationY(10*time), (time) => m4.translation([5*Math.sin(2*time), 0, 5*Math.cos(2*time)])
     );
 
     const earth = new CelestialBody(
-        "Earth", twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20), tex, (time) => m4.rotationY(50*time), (time) => m4.translation([10*Math.sin(time), 0, 10*Math.cos(time)])
+        "Earth", twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20), null, (time) => m4.rotationY(50*time), (time) => m4.translation([10*Math.sin(time), 0, 10*Math.cos(time)])
     );
 
     const mars = new CelestialBody(
-        "Mars", twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20), tex, (time) => m4.rotationY(25*time), (time) => m4.translation([15*Math.sin(0.7*time), 0, 15*Math.cos(0.7*time)])
+        "Mars", twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20), null, (time) => m4.rotationY(25*time), (time) => m4.translation([15*Math.sin(0.7*time), 0, 15*Math.cos(0.7*time)])
     );
 
     const jupiter = new CelestialBody(
-        "Jupiter", twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20), tex, (time) => m4.rotationY(10*time), (time) => m4.translation([20*Math.sin(0.5*time), 0, 20*Math.cos(0.5*time)])
+        "Jupiter", twgl.primitives.createSphereBufferInfo(gl, 1, 20, 20), null, (time) => m4.rotationY(10*time), (time) => m4.translation([20*Math.sin(0.5*time), 0, 20*Math.cos(0.5*time)])
     );
 
     const celestial_bodies = [
@@ -169,7 +169,7 @@ void main() {
       u_specular: [1, 1, 1, 1],
       u_shininess: 50,
       u_specularFactor: 1,
-      u_diffuse: tex,
+      u_diffuse: default_texture,
     };
 
     function render(time) {
@@ -205,7 +205,7 @@ void main() {
         uniforms.u_world = body.worldMatrix;
         uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(body.worldMatrix));
         uniforms.u_worldViewProjection = m4.multiply(viewProjection, body.worldMatrix);
-        uniforms.u_diffuse = body.texture;
+        uniforms.u_diffuse = body.texture || default_texture;
 
         gl.useProgram(programInfo.program);
         twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);

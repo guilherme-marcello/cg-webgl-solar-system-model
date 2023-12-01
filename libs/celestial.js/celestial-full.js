@@ -61,7 +61,7 @@ function createMercury(gl, timescale) {
     let translationPeriod = timescale * yearPeriod;
     let translationAngularSpeed = 2*Math.PI / translationPeriod;
     let translationF = (time) => {
-        const a = 5; // semi-major axis
+        const a = 6; // semi-major axis
         const b = 5; // semi-minor axis
 
         const x = a * Math.cos(translationAngularSpeed * time);
@@ -95,7 +95,7 @@ function createEarth(gl, timescale) {
     let translationPeriod = timescale * yearPeriod;
     let translationAngularSpeed = 2*Math.PI / translationPeriod;
     let translationF = (time) => {
-        const a = 10; // semi-major axis
+        const a = 11; // semi-major axis
         const b = 10; // semi-minor axis
 
         const x = a * Math.cos(translationAngularSpeed * time);

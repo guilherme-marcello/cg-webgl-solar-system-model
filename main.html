@@ -100,7 +100,6 @@ void main() {
 
     //fundo preto
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  
     const tex = twgl.createTexture(gl, {
       min: gl.NEAREST,
       mag: gl.NEAREST,
@@ -116,15 +115,8 @@ void main() {
       eye: [0, 30, -40],
       target: [0, 0, 0],
       up: [0, 1, 0],
-      //dragging: false,
       lastX: 0,
       lastY: 0,
-      /*keys: {
-        ArrowUp: false,
-        ArrowDown: false,
-        ArrowLeft: false,
-        ArrowRight: false,
-      },*/
       speed: 0.1,
     };
   
@@ -137,91 +129,7 @@ void main() {
       u_specularFactor: 1,
       u_diffuse: tex,
     };
-  /*
-    function handleMouseDown(event) {
-      event.preventDefault();
-      state.dragging = true;
-      state.lastX = event.clientX;
-      state.lastY = event.clientY;
-    }
-  
-    function handleMouseUp() {
-      state.dragging = false;
-    }
-  
-    function handleMouseMove(event) {
-      if (!state.dragging) return;
-  
-      const deltaX = event.clientX - state.lastX;
-      const deltaY = event.clientY - state.lastY;
-  
-      const sensitivity = 0.005;
-      const theta = deltaX * sensitivity;
-      const phi = deltaY * sensitivity;
-  
-      state.lastX = event.clientX;
-      state.lastY = event.clientY;
-  
-      // Atualiza a posição e orientação da câmera
-      const forward = m4.subtractVectors(state.target, state.eye);
-      const right = m4.cross(state.up, forward);
-      const up = m4.cross(forward, right);
-  
-      const rotationX = m4.axisRotation(right, phi);
-      const rotationY = m4.axisRotation(up, theta);
-  
-      const rotation = m4.multiply(rotationX, rotationY);
-  
-      state.eye = m4.transformPoint(rotation, state.eye);
-      state.target = m4.transformPoint(rotation, state.target);
-      state.up = m4.transformPoint(rotation, state.up);
-  
-      // Atualiza a matriz de visualização
-      const camera = m4.lookAt(state.eye, state.target, state.up);
-      uniforms.u_viewInverse = camera;
-  
-      // Redesenha a cena
-      render();
-    }
-  
-    function handleKeyDown(event) {
-      state.keys[event.code] = true;
-      updateCamera();
-    }
-  
-    function handleKeyUp(event) {
-      state.keys[event.code] = false;
-      updateCamera();
-    }
-  
-    function updateCamera() {
-      if (state.keys.ArrowUp) {
-        const forward = m4.subtractVectors(state.target, state.eye);
-        const movement = m4.scale(forward, state.speed);
-        state.eye = m4.addVectors(state.eye, movement);
-        state.target = m4.addVectors(state.target, movement);
-      }
-      if (state.keys.ArrowDown) {
-        const forward = m4.subtractVectors(state.target, state.eye);
-        const movement = m4.scale(forward, state.speed);
-        state.eye = m4.subtractVectors(state.eye, movement);
-        state.target = m4.subtractVectors(state.target, movement);
-      }
-      if (state.keys.ArrowLeft) {
-        const right = m4.cross(state.up, m4.subtractVectors(state.target, state.eye));
-        const movement = m4.scale(right, state.speed);
-        state.eye = m4.addVectors(state.eye, movement);
-        state.target = m4.addVectors(state.target, movement);
-      }
-      if (state.keys.ArrowRight) {
-        const right = m4.cross(state.up, m4.subtractVectors(state.target, state.eye));
-        const movement = m4.scale(right, state.speed);
-        state.eye = m4.subtractVectors(state.eye, movement);
-        state.target = m4.subtractVectors(state.target, movement);
-      }
-    }
 
-  */
     function render(time) {
       // Atualizações de câmera e tempo
       //updateCamera();
@@ -349,24 +257,7 @@ void main() {
       // Solicita o próximo frame de animação
       requestAnimationFrame(render);
     }
-
-
     requestAnimationFrame(render);
-    
-    // Adiciona os ouvintes de eventos
-    /*window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);*/
-  
-    /* Inicializa a cena
-    function animate() {
-      render();
-      
-    }*/
-  
-    //animate(); // Chama apenas uma vez para iniciar a animação
   </script>
   
 

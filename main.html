@@ -138,8 +138,9 @@ void main() {
         "Earth", twgl.primitives.createSphereBufferInfo(gl, 0.5, 20, 20), twgl.createTexture(gl, { src: 'textures/earth.jpg' }), (time) => m4.rotationY(50*time), (time) => m4.translation([10*Math.sin(time), 0, 10*Math.cos(time)])
     );
 
+    // texture src: https://nasa3d.arc.nasa.gov/detail/mar0kuu2
     const mars = new CelestialBody(
-        "Mars", twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20), null, (time) => m4.rotationY(25*time), (time) => m4.translation([15*Math.sin(0.7*time), 0, 15*Math.cos(0.7*time)])
+        "Mars", twgl.primitives.createSphereBufferInfo(gl, 0.6, 20, 20), twgl.createTexture(gl, { src: 'textures/mars.jpeg' }), (time) => m4.rotationY(25*time), (time) => m4.translation([15*Math.sin(0.7*time), 0, 15*Math.cos(0.7*time)])
     );
 
     const jupiter = new CelestialBody(

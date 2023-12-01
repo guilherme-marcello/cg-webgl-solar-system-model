@@ -189,7 +189,7 @@ void main() {
         const deltaX = event.clientX - state.lastX;
         const deltaY = event.clientY - state.lastY;
 
-        const sensitivity = 0.1; // Mouse sensibility (adjust if necessary)
+        const sensitivity = 0.01; // Mouse sensibility (adjust if necessary)
 
         // Rotations
         const rotationMatrixX = m4.rotationY(deltaX * sensitivity);
@@ -211,22 +211,48 @@ void main() {
     }
 
 
-    function handleKeyDown(event) {   //tentar meter rotação do target em torno do eye
+    function handleKeyDown(event) {
       const keyCode = event.keyCode;
+      const rotationSpeed = 0.02; // Ajuste conforme necessário
+
       switch (keyCode) {
         case 37: // Left Arrow
-          state.target[0] -= state.speed;
+          rotateTargetHorizontal(-rotationSpeed);
           break;
         case 39: // Right Arrow
-          state.target[0] += state.speed;
+          rotateTargetHorizontal(rotationSpeed);
           break;
         case 38: // Up Arrow
-          state.target[2] -= state.speed;
+          rotateTargetVertical(rotationSpeed);
           break;
-        case 40: // Down Arrow 
-          state.target[2] += state.speed;
+        case 40: // Down Arrow
+          rotateTargetVertical(-rotationSpeed);
           break;
       }
+    }
+
+    function rotateTargetHorizontal(angle) {
+      const deltaX = state.target[0] - state.eye[0];
+      const deltaY = state.target[2] - state.eye[2];
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      const currentAngle = Math.atan2(deltaY, deltaX);
+      const newAngle = currentAngle + angle;
+
+      state.target[0] = state.eye[0] + distance * Math.cos(newAngle);
+      state.target[2] = state.eye[2] + distance * Math.sin(newAngle);
+    }
+
+    function rotateTargetVertical(angle) {
+      const deltaX = state.target[1] - state.eye[1];
+      const deltaY = state.target[2] - state.eye[2];
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      const currentAngle = Math.atan2(deltaY, deltaX);
+      const newAngle = currentAngle + angle;
+
+      state.target[1] = state.eye[1] + distance * Math.cos(newAngle);
+      state.target[2] = state.eye[2] + distance * Math.sin(newAngle);
     }
 
     const uniforms = {

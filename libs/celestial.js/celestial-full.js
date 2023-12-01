@@ -116,7 +116,7 @@ function create(gl, name) {
             return createMercury(gl);
         case "earth":
             console.log("Creating Earth!");
-            return createSun(gl);
+            return createEarth(gl);
         case "mars":
             console.log("Creating Mars!");
             return createMars(gl);

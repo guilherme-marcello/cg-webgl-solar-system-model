@@ -53,10 +53,11 @@ uniform sampler2D u_diffuse;
 uniform vec4 u_specular;
 uniform float u_shininess;
 uniform float u_specularFactor;
+uniform int u_is_light_source;
 
 vec4 lit(float l ,float h, float m) {
   return vec4(1.0,
-              max(abs(l), 0.0),
+              max(l, 0.0),
               (l > 0.0) ? pow(max(0.0, h), m) : 0.0,
               1.0);
 //   return vec4(ambient, diffuse, specular, 1.0);
@@ -70,8 +71,18 @@ void main() {
 
   vec3 halfVector = normalize(surfaceToLight + surfaceToView);
 
-  vec4 litR = lit(dot(a_normal, surfaceToLight),
-                  dot(a_normal, halfVector), u_shininess);
+  vec4 temp;
+
+  if (u_is_light_source == 0) {
+    temp = lit(dot(a_normal, surfaceToLight), dot(a_normal, halfVector), u_shininess);
+  }
+  else {
+    temp = vec4(0.7, 0.7, 0.7, 1.0);
+  }
+
+  vec4 litR = temp;
+
+  
 
   vec4 outColor = vec4((
     u_lightColor * (diffuseColor * litR.y + diffuseColor * u_ambient +
@@ -103,7 +114,7 @@ void main() {
       ],
     });
 
-    let timescale = 15 / 365; // 15 seconds per 365 days
+    let timescale = 30 / 365; // 15 seconds per 365 days
     // bodies
     const sun = CelestialEntities.create(gl, timescale, "Sun");
     const mercury = CelestialEntities.create(gl, timescale, "Mercury");
@@ -122,7 +133,7 @@ void main() {
       
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background
     const state = {
-      eye: [0, 30, -40],
+      eye: [0, 65, 1],
       target: [0, 0, 0],
       up: [0, 1, 0],
       lastX: 0,
@@ -138,6 +149,7 @@ void main() {
       u_shininess: 50,
       u_specularFactor: 1,
       u_diffuse: default_texture,
+      u_is_light_source: 0
     };
 
     function render(time) {
@@ -174,6 +186,12 @@ void main() {
         uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(body.worldMatrix));
         uniforms.u_worldViewProjection = m4.multiply(viewProjection, body.worldMatrix);
         uniforms.u_diffuse = body.texture || default_texture;
+        if (body.name == "Sun") {
+          uniforms.u_is_light_source = 1;
+        } else {
+          uniforms.u_is_light_source = 0;
+        }
+        console.log("Setting " + uniforms.u_is_light_source + " for biody " + body.name);
 
         gl.useProgram(programInfo.program);
         twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);

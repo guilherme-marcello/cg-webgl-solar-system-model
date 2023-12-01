@@ -229,6 +229,8 @@ void main() {
       uniforms.u_world = moon_World;
       uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(moon_World));
       uniforms.u_worldViewProjection = m4.multiply(viewProjection, moon_World);
+      // texture src: https://svs.gsfc.nasa.gov/cgi-bin/details.cgi?aid=4720
+      uniforms.u_diffuse = twgl.createTexture(gl, { src: 'textures/moon.jpeg' });
       twgl.setBuffersAndAttributes(gl, programInfo, moon);
       twgl.setUniforms(programInfo, uniforms);
       twgl.drawBufferInfo(gl, moon);

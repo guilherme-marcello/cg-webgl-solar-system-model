@@ -110,6 +110,7 @@
     const moon = celestial.createMoon(gl, timescale, earth);
     const mars = celestial.create(gl, timescale, "Mars");
     const jupiter = celestial.create(gl, timescale, "Jupiter");
+    const saturn = celestial.create(gl, timescale, "Saturn");
 
     const celestial_bodies = [
         sun,
@@ -118,7 +119,8 @@
         earth,
         moon,
         mars,
-        jupiter
+        jupiter,
+        saturn
     ];
       
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background

@@ -390,6 +390,45 @@ function createUranus(gl, timescale) {
     return body;
 }
 
+function createNeptune(gl, timescale) {
+    // texture src: https://nasa3d.arc.nasa.gov/detail/nep0fds1
+    let name = "Neptune";
+    let yearPeriod = 60190; 
+    let dayPeriod = 0.67;
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.7, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/neptune.jpeg' });
+
+    let rotationPeriod = timescale * dayPeriod;
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * yearPeriod;
+    let translationAngularSpeed = 2 * Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const a = 56; // semi-major axis
+        const b = 55; // semi-minor axis
+
+        const x = a * Math.cos(translationAngularSpeed * time);
+        const y = -b * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, 0, y]);
+    };
+
+    const body = new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod
+    );
+
+    body.createOrbitPath(gl, 50);
+    return body;
+}
+
 function create(gl, timescale, name) {
     switch (name.toLowerCase()) {
         case "sun":
@@ -416,6 +455,9 @@ function create(gl, timescale, name) {
         case "uranus":
             console.log("Creating Uranus!");
             return createUranus(gl, timescale);
+        case "neptune":
+            console.log("Creating Neptune!");
+            return createNeptune(gl, timescale);
         default:
             console.log("Unable to create " + name);
             return null;

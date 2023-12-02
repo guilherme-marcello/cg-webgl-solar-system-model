@@ -68,26 +68,26 @@ class SpatialHandlingUtils {
 
         switch (keyCode) {
             case 37: // Left Arrow
-            rotateTargetHorizontal(-rotationSpeed);
-            break;
+                this.rotateTargetHorizontal(-rotationSpeed, state);
+                break;
             case 39: // Right Arrow
-            rotateTargetHorizontal(rotationSpeed);
-            break;
+                this.rotateTargetHorizontal(rotationSpeed, state);
+                break;
             case 38: // Up Arrow
-            rotateTargetVertical(rotationSpeed);
-            break;
+                this.rotateTargetVertical(rotationSpeed, state);
+                break;
             case 40: // Down Arrow
-            rotateTargetVertical(-rotationSpeed);
-            break;
+                this.rotateTargetVertical(-rotationSpeed, state);
+                break;
             case 79: // 'o'
-            uniforms.u_draw_orbits = 1 - uniforms.u_draw_orbits; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
-            break;
+                uniforms.u_draw_orbits = 1 - uniforms.u_draw_orbits; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
+                break;
             case 49: // '1'
-            state.target = earth.extractCoordinates();
-            break;
+                state.target = earth.extractCoordinates();
+                break;
             case 50: // '2'
-            state.target = sun.extractCoordinates();
-            break;
+                state.target = sun.extractCoordinates();
+                break;
         }
     }
     

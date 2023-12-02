@@ -263,7 +263,8 @@ void main() {
       u_shininess: 50,
       u_specularFactor: 1,
       u_diffuse: default_texture,
-      u_is_light_source: 0
+      u_is_light_source: 0,
+      u_draw_orbits: 1
     };
 
     function render(time) {
@@ -310,6 +311,22 @@ void main() {
         twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
         twgl.setUniforms(programInfo, uniforms);
         twgl.drawBufferInfo(gl, body.buffer);
+
+        if (uniforms.u_draw_orbits == 1 && body.name != "Sun") {
+          uniforms.u_is_light_source = 1;
+          for (const part of body.path) {
+            uniforms.u_world = part.worldMatrix;
+            uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(part.worldMatrix));
+            uniforms.u_worldViewProjection = m4.multiply(viewProjection, part.worldMatrix);
+            uniforms.u_diffuse = default_texture;
+            gl.useProgram(programInfo.program);
+            twgl.setBuffersAndAttributes(gl, programInfo, part.buffer);
+            twgl.setUniforms(programInfo, uniforms);
+            twgl.drawBufferInfo(gl, part.buffer); 
+
+          }
+     
+        }
 
       })
 

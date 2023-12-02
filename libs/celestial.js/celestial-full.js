@@ -2,16 +2,38 @@ import * as webgl from "../twgl.js/dist/5.x/twgl-full.js";
 
 const m4 = twgl.m4;
 
-class CelestialBody {
-    constructor(name, buffer, texture, rotationFunction, translationFunction) {
-        this.name = name
-        this.buffer = buffer;
-        this.worldMatrix = twgl.m4.identity();
+class PathPart {
+    constructor(gl, translationMatrix, thickness) {
+        this.buffer = twgl.primitives.createCubeBufferInfo(gl, thickness);;
+        this.worldMatrix = m4.multiply(twgl.m4.identity(), translationMatrix);
+    }
+}
 
-        this.texture = texture;
-        
+class CelestialBody {
+    constructor(name, buffer, texture, rotationFunction, translationFunction, rotationPeriod, translationPeriod) {
+        this.name = name;
+        this.path = [];
+
+        this.rotationPeriod = rotationPeriod;
+        this.translationPeriod = translationPeriod;
         this.rotationFunction = rotationFunction;
         this.translationFunction = translationFunction;
+
+        this.buffer = buffer;
+        
+        this.worldMatrix = m4.identity();
+        this.texture = texture;
+
+    }
+
+    createOrbitPath(gl, n_points) {
+        const thickness = 0.05;
+        for (let i = 0; i <= n_points; i++) {
+            const time = (i / n_points) * this.translationPeriod;
+            const translationMatrix = this.translationFunction(time);
+            const part = new PathPart(gl, translationMatrix, thickness);
+            this.path.push(part);
+        }
     }
 
     updateWorldMatrix(time) {
@@ -40,7 +62,9 @@ function createSun(gl, timescale) {
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        null
     );
 }
 
@@ -70,13 +94,18 @@ function createMercury(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
+
+    body.createOrbitPath(gl, 50);
+    return body;
 }
 
 function createEarth(gl, timescale) {
@@ -104,13 +133,18 @@ function createEarth(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
+
+    body.createOrbitPath(gl, 50);
+    return body;
 }
 
 function createMars(gl, timescale) {
@@ -138,13 +172,18 @@ function createMars(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
+
+    body.createOrbitPath(gl, 50);
+    return body;
 }
 
 function createJupiter(gl, timescale) {
@@ -172,13 +211,18 @@ function createJupiter(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
+
+    body.createOrbitPath(gl, 50);
+    return body;
 }
 
 function create(gl, timescale, name) {
@@ -205,4 +249,4 @@ function create(gl, timescale, name) {
 }
 
 
-export { CelestialBody, create};
+export { create};

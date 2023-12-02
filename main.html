@@ -101,7 +101,7 @@
     // texture src: https://in.pinterest.com/pin/white-texture-free-download-free-for-commercial-use-no-registration-required-add-a-subtle-white-te--430867889343458127/
     const default_texture = twgl.createTexture(gl, { src: 'textures/white.jpeg' });
 
-    let timescale = 30 / 365; // 15 seconds per 365 days
+    let timescale = 1200 / 365; // 15 seconds per 365 days
     // bodies
     const sun = celestial.create(gl, timescale, "Sun");
     const mercury = celestial.create(gl, timescale, "Mercury");
@@ -109,11 +109,14 @@
     const mars = celestial.create(gl, timescale, "Mars");
     const jupiter = celestial.create(gl, timescale, "Jupiter");
 
-    const moon = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
+    const moon = celestial.createMoon(gl, timescale, earth);
+    
+    //twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
     const celestial_bodies = [
         sun,
         mercury,
         earth,
+        moon,
         mars,
         jupiter
     ];
@@ -198,7 +201,7 @@
         twgl.setUniforms(programInfo, uniforms);
         twgl.drawBufferInfo(gl, body.buffer);
 
-        if (uniforms.u_draw_orbits == 1 && body.name != "Sun") {
+        if (uniforms.u_draw_orbits == 1 && body.path != null) {
           uniforms.u_is_light_source = 1;
           for (const part of body.path) {
             uniforms.u_world = part.worldMatrix;
@@ -211,28 +214,8 @@
             twgl.drawBufferInfo(gl, part.buffer); 
 
           }
-     
         }
-
       })
-
-
-      // Configurações da Lua (moon)
-      const moon_World = m4.multiply(earth.worldMatrix, m4.rotationY(time)); // Rotação da lua
-      const moon_OrbitRadius = 1.5;
-      const moon_OrbitPosition = [Math.cos(time * 2) * moon_OrbitRadius, Math.cos(time), Math.sin(time * 2) * moon_OrbitRadius];
-      const moon_Position = m4.translation(moon_OrbitPosition);
-      m4.multiply(moon_Position, moon_World, moon_World);
-      uniforms.u_world = moon_World;
-      uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(moon_World));
-      uniforms.u_worldViewProjection = m4.multiply(viewProjection, moon_World);
-      // texture src: https://svs.gsfc.nasa.gov/cgi-bin/details.cgi?aid=4720
-      uniforms.u_diffuse = twgl.createTexture(gl, { src: 'textures/moon.jpeg' });
-      twgl.setBuffersAndAttributes(gl, programInfo, moon);
-      twgl.setUniforms(programInfo, uniforms);
-      twgl.drawBufferInfo(gl, moon);
-
-
       // Solicita o próximo frame de animação
       requestAnimationFrame(render);
     }

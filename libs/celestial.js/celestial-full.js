@@ -429,6 +429,46 @@ function createNeptune(gl, timescale) {
     return body;
 }
 
+function createPluto(gl, timescale) {
+    // texture src: https://en.wikipedia.org/wiki/Template:GeoTemplate/pluto
+    let name = "Pluto";
+    let yearPeriod = 90560; 
+    let dayPeriod = 6.3872;
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/pluto.jpeg' });
+
+    let rotationPeriod = timescale * dayPeriod;
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * yearPeriod;
+    let translationAngularSpeed = 2 * Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const a = 39.5; // semi-major axis
+        const b = 29.7; // semi-minor axis
+
+        const x = a * Math.cos(translationAngularSpeed * time);
+        const y = -b * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, 0, y]);
+    };
+
+    const body = new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod
+    );
+
+    body.createOrbitPath(gl, 50);
+    return body;
+}
+
+
 function create(gl, timescale, name) {
     switch (name.toLowerCase()) {
         case "sun":
@@ -458,6 +498,9 @@ function create(gl, timescale, name) {
         case "neptune":
             console.log("Creating Neptune!");
             return createNeptune(gl, timescale);
+        case "pluto":
+            console.log("Creating Pluto!");
+            return createPluto(gl, timescale);
         default:
             console.log("Unable to create " + name);
             return null;

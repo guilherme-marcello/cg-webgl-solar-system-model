@@ -190,19 +190,16 @@
         uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(body.worldMatrix));
         uniforms.u_worldViewProjection = m4.multiply(viewProjection, body.worldMatrix);
         uniforms.u_diffuse = body.texture || default_texture;
-        if (body.name == "Sun") {
-          uniforms.u_is_light_source = 1;
-        } else {
-          uniforms.u_is_light_source = 0;
-        }
-
+        
+        if (body.name == "Sun") uniforms.u_is_light_source = 1;
         gl.useProgram(programInfo.program);
         twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
         twgl.setUniforms(programInfo, uniforms);
         twgl.drawBufferInfo(gl, body.buffer);
+        if (body.name == "Sun") uniforms.u_is_light_source = 0;
 
         if (uniforms.u_draw_orbits == 1 && body.path != null) {
-          uniforms.u_is_light_source = 1;
+          uniforms.u_is_light_source = 1; // push
           for (const part of body.path) {
             uniforms.u_world = part.worldMatrix;
             uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(part.worldMatrix));
@@ -211,9 +208,9 @@
             gl.useProgram(programInfo.program);
             twgl.setBuffersAndAttributes(gl, programInfo, part.buffer);
             twgl.setUniforms(programInfo, uniforms);
-            twgl.drawBufferInfo(gl, part.buffer); 
-
+            twgl.drawBufferInfo(gl, part.buffer);
           }
+          uniforms.u_is_light_source = 0; // pop
         }
       })
       // Solicita o próximo frame de animação

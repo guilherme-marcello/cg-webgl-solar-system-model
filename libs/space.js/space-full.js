@@ -93,6 +93,16 @@ class SpatialHandlingUtils {
                 interactions.paused = !interactions.paused;
                 console.log("Paused? " + interactions.paused);
                 break;
+            case 65: // 'a'
+                console.log("Decreasing speed! Current speedFactor is " + interactions.speedFactor);
+                interactions.speedFactor = Math.max(interactions.speedFactor / 10, 0.001);
+                console.log("New speedFactor is " + interactions.speedFactor);
+                break;
+            case 68: // 'd'
+                console.log("Increasing speed! Current speedFactor is " + interactions.speedFactor);
+                interactions.speedFactor = Math.min(interactions.speedFactor * 10, 1000);
+                console.log("New speedFactor is " + interactions.speedFactor);
+                break;
         }
     }
     

@@ -88,7 +88,8 @@ class SpatialHandlingUtils {
             case 50: // '2'
                 state.target = sun.extractCoordinates();
                 break;
-            case 32: // space
+            case 32: // space or enter
+            case 13:
                 interactions.paused = !interactions.paused;
                 console.log("Paused? " + interactions.paused);
                 break;

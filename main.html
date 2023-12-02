@@ -101,7 +101,7 @@
     // texture src: https://in.pinterest.com/pin/white-texture-free-download-free-for-commercial-use-no-registration-required-add-a-subtle-white-te--430867889343458127/
     const default_texture = twgl.createTexture(gl, { src: 'textures/white.jpeg' });
 
-    let timescale = 1200 / 365; // 15 seconds per 365 days
+    let timescale = 1200 / 365; // 1200 seconds per 365 days
     // bodies
     const sun = celestial.create(gl, timescale, "Sun");
     const mercury = celestial.create(gl, timescale, "Mercury");
@@ -143,7 +143,6 @@
     window.addEventListener('mouseup', (event) => space.SpatialHandlingUtils.handleMouseUp(interactions));
     window.addEventListener('wheel', (event) => space.SpatialHandlingUtils.handleWheel(event, state));
 
-
     const uniforms = {
       u_lightWorldPos: sun.worldMatrix,
       u_lightColor: [1, 0.8, 0.8, 1],
@@ -156,31 +155,32 @@
       u_draw_orbits: 1
     };
 
+    // Configurações de canvas
+    const canvas = gl.canvas;
+    twgl.resizeCanvasToDisplaySize(canvas);
+    
+    // Define explicitamente o tamanho do canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Configurações WebGL
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+
+    const fov = 30 * Math.PI / 180;
+    const aspect = canvas.width / canvas.height;
+    const zNear = 0.5;
+    const zFar = 75;
+    const projection = m4.perspective(fov, aspect, zNear, zFar);
+
+
     function render(time) {
-      // Atualizações de câmera e tempo
-
-      time *= 0.001;
-
-      // Configurações de canvas
-      const canvas = gl.canvas;
-      twgl.resizeCanvasToDisplaySize(canvas);
-      
-      // Define explicitamente o tamanho do canvas
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      // Configurações WebGL
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.enable(gl.DEPTH_TEST);
-      gl.enable(gl.CULL_FACE);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  
+      time *= 0.001; // ms => s
 
-      // Configurações de projeção e visão
-      const fov = 30 * Math.PI / 180;
-      const aspect = canvas.width / canvas.height;
-      const zNear = 0.5;
-      const zFar = 75;
-      const projection = m4.perspective(fov, aspect, zNear, zFar);
+      // view config
       const view = m4.inverse(m4.lookAt(state.eye, state.target, state.up));
       const viewProjection = m4.multiply(projection, view);
 
@@ -213,10 +213,8 @@
           uniforms.u_is_light_source = 0; // pop
         }
       })
-      // Solicita o próximo frame de animação
       requestAnimationFrame(render);
     }
-
 
     requestAnimationFrame(render);
   </script>

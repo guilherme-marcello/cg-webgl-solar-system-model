@@ -104,6 +104,7 @@ void main() {
     const gl = document.querySelector("canvas").getContext("webgl");
     const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
 
+    // texture src: https://in.pinterest.com/pin/white-texture-free-download-free-for-commercial-use-no-registration-required-add-a-subtle-white-te--430867889343458127/
     const default_texture = twgl.createTexture(gl, { src: 'textures/white.jpeg' });
 
     let timescale = 30 / 365; // 15 seconds per 365 days

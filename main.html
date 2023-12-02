@@ -133,11 +133,13 @@
     const interactions = {
       isDragging: false,
       lastX: 0,
-      lastY: 0
+      lastY: 0,
+      lastTS: 0,
+      paused: false
     }
 
     // Event listeners for keys
-    window.addEventListener('keydown', (event) => space.SpatialHandlingUtils.handleKeyDown(event, state, uniforms, earth, sun));
+    window.addEventListener('keydown', (event) => space.SpatialHandlingUtils.handleKeyDown(event, state, uniforms, interactions, earth, sun));
     
     // Event listeners for mouse
     window.addEventListener('mousedown', (event) => space.SpatialHandlingUtils.handleMouseDown(event, interactions));
@@ -181,6 +183,10 @@
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   
       time *= 0.001; // ms => s
+      if (interactions.paused)
+        time = interactions.lastTS;
+      else
+        interactions.lastTS = time;
 
       // view config
       const view = m4.inverse(m4.lookAt(state.eye, state.target, state.up));

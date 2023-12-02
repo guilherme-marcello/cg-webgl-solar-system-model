@@ -62,7 +62,7 @@ class SpatialHandlingUtils {
         interactions.isDragging = false;
     }
     
-    static handleKeyDown(event, state, uniforms, earth, sun) {
+    static handleKeyDown(event, state, uniforms, interactions, earth, sun) {
         const keyCode = event.keyCode;
         const rotationSpeed = 0.02;
 
@@ -87,6 +87,10 @@ class SpatialHandlingUtils {
                 break;
             case 50: // '2'
                 state.target = sun.extractCoordinates();
+                break;
+            case 32: // space
+                interactions.paused = !interactions.paused;
+                console.log("Paused? " + interactions.paused);
                 break;
         }
     }

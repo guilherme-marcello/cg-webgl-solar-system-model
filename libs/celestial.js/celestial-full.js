@@ -27,7 +27,7 @@ class CelestialBody {
     }
 
     createOrbitPath(gl, n_points) {
-        const thickness = 0.1;
+        const thickness = 0.05;
         for (let i = 0; i <= n_points; i++) {
             const time = (i / n_points) * this.translationPeriod;
             const translationMatrix = this.translationFunction(time);
@@ -104,7 +104,7 @@ function createMercury(gl, timescale) {
         translationPeriod
     );
 
-    body.createOrbitPath(gl, 20);
+    body.createOrbitPath(gl, 50);
     return body;
 }
 
@@ -143,7 +143,7 @@ function createEarth(gl, timescale) {
         translationPeriod
     );
 
-    body.createOrbitPath(gl, 20);
+    body.createOrbitPath(gl, 50);
     return body;
 }
 
@@ -172,7 +172,7 @@ function createMars(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
@@ -181,6 +181,9 @@ function createMars(gl, timescale) {
         rotationPeriod,
         translationPeriod
     );
+
+    body.createOrbitPath(gl, 50);
+    return body;
 }
 
 function createJupiter(gl, timescale) {
@@ -208,7 +211,7 @@ function createJupiter(gl, timescale) {
         return twgl.m4.translation([x, 0, y]);
     };
 
-    return new CelestialBody(
+    const body = new CelestialBody(
         name,
         buffer, 
         texture, 
@@ -217,6 +220,9 @@ function createJupiter(gl, timescale) {
         rotationPeriod,
         translationPeriod
     );
+
+    body.createOrbitPath(gl, 50);
+    return body;
 }
 
 function create(gl, timescale, name) {
@@ -243,4 +249,4 @@ function create(gl, timescale, name) {
 }
 
 
-export { CelestialBody, create};
+export { create};

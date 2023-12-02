@@ -210,10 +210,9 @@ void main() {
       isDragging = false;
     }
 
-
     function handleKeyDown(event) {
       const keyCode = event.keyCode;
-      const rotationSpeed = 0.02; // Ajuste conforme necessário
+      const rotationSpeed = 0.02;
 
       switch (keyCode) {
         case 37: // Left Arrow
@@ -227,6 +226,9 @@ void main() {
           break;
         case 40: // Down Arrow
           rotateTargetVertical(-rotationSpeed);
+          break;
+        case 79: // 'o'
+          uniforms.u_draw_orbits = 1 - uniforms.u_draw_orbits; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
           break;
       }
     }

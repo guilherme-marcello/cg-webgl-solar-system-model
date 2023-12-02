@@ -105,16 +105,16 @@
     // bodies
     const sun = celestial.create(gl, timescale, "Sun");
     const mercury = celestial.create(gl, timescale, "Mercury");
+    const venus = celestial.create(gl, timescale, "Venus");
     const earth = celestial.create(gl, timescale, "Earth");
+    const moon = celestial.createMoon(gl, timescale, earth);
     const mars = celestial.create(gl, timescale, "Mars");
     const jupiter = celestial.create(gl, timescale, "Jupiter");
 
-    const moon = celestial.createMoon(gl, timescale, earth);
-    
-    //twgl.primitives.createSphereBufferInfo(gl, 0.1, 20, 20);
     const celestial_bodies = [
         sun,
         mercury,
+        venus,
         earth,
         moon,
         mars,

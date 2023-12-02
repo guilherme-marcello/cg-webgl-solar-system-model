@@ -117,6 +117,47 @@ function createMercury(gl, timescale) {
     return body;
 }
 
+function createVenus(gl, timescale) {
+    // texture src: https://nasa3d.arc.nasa.gov/detail/ven0aaa2
+    let name = "Venus";
+    let yearPeriod = 225;
+    let dayPeriod = 243;
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.4, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/venus.jpeg' });
+
+    let rotationPeriod = timescale * dayPeriod;
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * yearPeriod;
+    let translationAngularSpeed = 2 * Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const a = 7; // semi-major axis
+        const b = 8; // semi-minor axis
+
+        const x = a * Math.cos(translationAngularSpeed * time);
+        const y = -b * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, 0, y]);
+    };
+
+    const body = new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod
+    );
+
+    body.createOrbitPath(gl, 50);
+    return body;
+}
+
+
+
 function createEarth(gl, timescale) {
     // texture src: https://visibleearth.nasa.gov/images/73580/january-blue-marble-next-generation-w-topography-and-bathymetry
     let name =  "Earth";
@@ -279,6 +320,9 @@ function create(gl, timescale, name) {
         case "mercury":
             console.log("Creating Mercury!");
             return createMercury(gl, timescale);
+        case "venus":
+            console.log("Creating Venus!");
+            return createVenus(gl, timescale);
         case "earth":
             console.log("Creating Earth!");
             return createEarth(gl, timescale);

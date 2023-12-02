@@ -351,6 +351,45 @@ function createSaturn(gl, timescale) {
     return body;
 }
 
+function createUranus(gl, timescale) {
+    // texture src: https://planetpixelemporium.com/uranus.html
+    let name = "Uranus";
+    let yearPeriod = 30687; 
+    let dayPeriod = 0.72;
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.7, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/uranus.jpeg' });
+
+    let rotationPeriod = timescale * dayPeriod;
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * yearPeriod;
+    let translationAngularSpeed = 2 * Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const a = 34; // semi-major axis
+        const b = 33; // semi-minor axis
+
+        const x = a * Math.cos(translationAngularSpeed * time);
+        const y = -b * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, 0, y]);
+    };
+
+    const body = new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod
+    );
+
+    body.createOrbitPath(gl, 50);
+    return body;
+}
+
 function create(gl, timescale, name) {
     switch (name.toLowerCase()) {
         case "sun":
@@ -374,6 +413,9 @@ function create(gl, timescale, name) {
         case "saturn":
             console.log("Creating Saturn!");
             return createSaturn(gl, timescale);
+        case "uranus":
+            console.log("Creating Uranus!");
+            return createUranus(gl, timescale);
         default:
             console.log("Unable to create " + name);
             return null;

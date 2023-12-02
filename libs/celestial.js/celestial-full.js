@@ -41,6 +41,10 @@ class CelestialBody {
         const translation = this.translationFunction(time);
         this.worldMatrix = twgl.m4.multiply(translation, rotation);
     }
+
+    extractCoordinates() {
+        return [this.worldMatrix[12], this.worldMatrix[13], this.worldMatrix[14]]
+    }
 }
 
 function createSun(gl, timescale) {

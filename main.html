@@ -230,13 +230,20 @@ void main() {
         twgl.setUniforms(programInfo, uniforms);
         twgl.drawBufferInfo(gl, body.buffer);
 
-        if (uniforms.u_draw_orbits == 1 && body.pathBuffer) {
-          //console.log("Adding path of " + body.name);
+        if (uniforms.u_draw_orbits == 1 && body.name != "Sun") {
           uniforms.u_is_light_source = 1;
-          gl.useProgram(programInfo.program);
-          twgl.setBuffersAndAttributes(gl, programInfo, body.pathBuffer);
-          twgl.setUniforms(programInfo, uniforms);
-          twgl.drawBufferInfo(gl, body.pathBuffer, gl.TRIANGLE_STRIP);      
+          for (const part of body.path) {
+            uniforms.u_world = part.worldMatrix;
+            uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(part.worldMatrix));
+            uniforms.u_worldViewProjection = m4.multiply(viewProjection, part.worldMatrix);
+            uniforms.u_diffuse = default_texture;
+            gl.useProgram(programInfo.program);
+            twgl.setBuffersAndAttributes(gl, programInfo, part.buffer);
+            twgl.setUniforms(programInfo, uniforms);
+            twgl.drawBufferInfo(gl, part.buffer); 
+
+          }
+     
         }
 
       })

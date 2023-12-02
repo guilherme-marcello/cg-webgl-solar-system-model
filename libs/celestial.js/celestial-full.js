@@ -2,37 +2,39 @@ import * as webgl from "../twgl.js/dist/5.x/twgl-full.js";
 
 const m4 = twgl.m4;
 
-class CelestialBody {
-    constructor(name, buffer, texture, rotationFunction, translationFunction) {
-        this.name = name
+class PathPart {
+    constructor(gl, translationMatrix, thickness) {
+        this.buffer = twgl.primitives.createCubeBufferInfo(gl, thickness);;
+        this.worldMatrix = m4.multiply(twgl.m4.identity(), translationMatrix);
+    }
+}
 
+class CelestialBody {
+    constructor(name, buffer, texture, rotationFunction, translationFunction, rotationPeriod, translationPeriod) {
+        this.name = name;
+        this.path = [];
+
+        this.rotationPeriod = rotationPeriod;
+        this.translationPeriod = translationPeriod;
         this.rotationFunction = rotationFunction;
         this.translationFunction = translationFunction;
 
         this.buffer = buffer;
-        this.pathBuffer = null;
         
-        this.worldMatrix = twgl.m4.identity();
+        this.worldMatrix = m4.identity();
         this.texture = texture;
 
     }
 
     createOrbitPath(gl, n_points) {
-        const path = [];
-        const thickness = 20;
+        const thickness = 0.1;
         for (let i = 0; i <= n_points; i++) {
-            const time = (i / n_points) * 2 * Math.PI;
+            const time = (i / n_points) * this.translationPeriod;
             const translationMatrix = this.translationFunction(time);
-            const point = twgl.m4.transformPoint(translationMatrix, [0, 0, 0, 0]);
-            path.push(point[0] + thickness, point[1] + thickness, point[2] + thickness, point[0] - thickness, point[1] - thickness, point[2] - thickness);
+            const part = new PathPart(gl, translationMatrix, thickness);
+            this.path.push(part);
         }
-
-        this.pathBuffer = twgl.createBufferInfoFromArrays(gl, {
-            position: { numComponents: 3, data: new Float32Array(path) },
-        });
     }
-    
-    
 
     updateWorldMatrix(time) {
         const rotation = this.rotationFunction(time);
@@ -60,7 +62,9 @@ function createSun(gl, timescale) {
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        null
     );
 }
 
@@ -95,10 +99,12 @@ function createMercury(gl, timescale) {
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
 
-    body.createOrbitPath(gl, 2000);
+    body.createOrbitPath(gl, 20);
     return body;
 }
 
@@ -132,10 +138,12 @@ function createEarth(gl, timescale) {
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
 
-    body.createOrbitPath(gl, 2000);
+    body.createOrbitPath(gl, 20);
     return body;
 }
 
@@ -169,7 +177,9 @@ function createMars(gl, timescale) {
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
 }
 
@@ -203,7 +213,9 @@ function createJupiter(gl, timescale) {
         buffer, 
         texture, 
         rotationF,
-        translationF
+        translationF,
+        rotationPeriod,
+        translationPeriod
     );
 }
 

@@ -136,22 +136,24 @@ void main() {
       eye: [0, 30, 40],
       target: [0, 0, 0],
       up: [0, 1, 0],
-      lastX: 0,
-      lastY: 0,
-      speed: 0.5,
     };
-    
-    let isDragging = false;
 
-    window.addEventListener('keydown', handleKeyDown);
-    
-    // Event listeners para o mouse
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('wheel', handleWheel);
+    const interactions = {
+      isDragging: false,
+      lastX: 0,
+      lastY: 0
+    }
 
-    function handleWheel(event) {
+    // Event listeners for keys
+    window.addEventListener('keydown', (event) => handleKeyDown(event, state, uniforms, earth, sun));
+    
+    // Event listeners for mouse
+    window.addEventListener('mousedown', (event) => handleMouseDown(event, interactions));
+    window.addEventListener('mousemove', (event) => handleMouseMove(event, interactions, state));
+    window.addEventListener('mouseup', (event) => handleMouseUp(interactions));
+    window.addEventListener('wheel', (event) => handleWheel(event, state));
+
+    function handleWheel(event, state) {
       const zoomSpeed = 0.1; // Ajuste conforme necessário
       const delta = event.deltaY;
 
@@ -177,17 +179,17 @@ void main() {
       }
     }
 
-    function handleMouseDown(event) {
-      isDragging = true;
-      state.lastX = event.clientX;
-      state.lastY = event.clientY;
+    function handleMouseDown(event, interactions) {
+      interactions.isDragging = true;
+      interactions.lastX = event.clientX;
+      interactions.lastY = event.clientY;
     }
 
-    function handleMouseMove(event) {
-      if (isDragging) {
+    function handleMouseMove(event, interactions, state) {
+      if (interactions.isDragging) {
         
-        const deltaX = event.clientX - state.lastX;
-        const deltaY = event.clientY - state.lastY;
+        const deltaX = event.clientX - interactions.lastX;
+        const deltaY = event.clientY - interactions.lastY;
 
         const sensitivity = 0.01; // Mouse sensibility (adjust if necessary)
 
@@ -201,16 +203,16 @@ void main() {
         state.eye = m4.transformPoint(rotationMatrixY, state.eye);
         state.target = m4.transformPoint(rotationMatrixY, state.target);
 
-        state.lastX = event.clientX;
-        state.lastY = event.clientY;
+        interactions.lastX = event.clientX;
+        interactions.lastY = event.clientY;
       }
     }
 
-    function handleMouseUp() {
-      isDragging = false;
+    function handleMouseUp(interactions) {
+      interactions.isDragging = false;
     }
 
-    function handleKeyDown(event) {
+    function handleKeyDown(event, state, uniforms, earth, sun) {
       const keyCode = event.keyCode;
       const rotationSpeed = 0.02;
 
@@ -239,7 +241,7 @@ void main() {
       }
     }
 
-    function rotateTargetHorizontal(angle) {
+    function rotateTargetHorizontal(angle, state) {
       const deltaX = state.target[0] - state.eye[0];
       const deltaY = state.target[2] - state.eye[2];
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -251,7 +253,7 @@ void main() {
       state.target[2] = state.eye[2] + distance * Math.sin(newAngle);
     }
 
-    function rotateTargetVertical(angle) {
+    function rotateTargetVertical(angle, state) {
       const deltaX = state.target[1] - state.eye[1];
       const deltaY = state.target[2] - state.eye[2];
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);

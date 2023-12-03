@@ -219,7 +219,7 @@ function createMoon(gl, timescale, earth) {
         const x = a * Math.cos(translationAngularSpeed * time);
         const y = -b * Math.sin(translationAngularSpeed * time);
     
-        return twgl.m4.translation([x, Math.cos(time), y]);
+        return twgl.m4.translation([x, 0.5*Math.cos(time), y]);
     };
 
     return new CelestialBody(

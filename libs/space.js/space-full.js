@@ -65,8 +65,21 @@ class SpatialHandlingUtils {
     static handleKeyDown(event, state, interactions, earth, sun) {
         const keyCode = event.keyCode;
         const rotationSpeed = 0.02;
+        const moveSpeed = 5;
 
         switch (keyCode) {
+            case 87: // 'w'
+                state.eye[1] += moveSpeed;
+                break;
+            case 65: // 'a'
+                state.eye[0] -= moveSpeed;
+                break;
+            case 83: // 's'
+                state.eye[1] -= moveSpeed;
+                break;
+            case 68: // 'd'
+                state.eye[0] += moveSpeed;
+                break;
             case 37: // Left Arrow
                 this.rotateTargetHorizontal(-rotationSpeed, state);
                 break;
@@ -93,12 +106,12 @@ class SpatialHandlingUtils {
                 interactions.paused = !interactions.paused;
                 console.log("Paused? " + interactions.paused);
                 break;
-            case 65: // 'a'
+            case 90: // 'z'
                 console.log("Decreasing speed! Current speedFactor is " + interactions.speedFactor);
                 interactions.speedFactor = Math.max(interactions.speedFactor / 10, 0.001);
                 console.log("New speedFactor is " + interactions.speedFactor);
                 break;
-            case 68: // 'd'
+            case 88: // 'x'
                 console.log("Increasing speed! Current speedFactor is " + interactions.speedFactor);
                 interactions.speedFactor = Math.min(interactions.speedFactor * 10, 1000);
                 console.log("New speedFactor is " + interactions.speedFactor);

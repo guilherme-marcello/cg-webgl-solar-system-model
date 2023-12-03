@@ -65,20 +65,20 @@ class SpatialHandlingUtils {
     static handleKeyDown(event, state, interactions, earth, sun) {
         const keyCode = event.keyCode;
         const rotationSpeed = 0.02;
-        const moveSpeed = 5;
+        const moveSpeed = 0.02;
 
         switch (keyCode) {
             case 87: // 'w'
-                state.eye[1] += moveSpeed;
+                this.moveEyeVertical(moveSpeed, state);
                 break;
             case 65: // 'a'
-                state.eye[0] -= moveSpeed;
+                this.moveEyeHorizontal(moveSpeed, state);
                 break;
             case 83: // 's'
-                state.eye[1] -= moveSpeed;
+                this.moveEyeVertical(-moveSpeed, state);
                 break;
             case 68: // 'd'
-                state.eye[0] += moveSpeed;
+                this.moveEyeHorizontal(-moveSpeed, state);
                 break;
             case 37: // Left Arrow
                 this.rotateTargetHorizontal(-rotationSpeed, state);
@@ -121,7 +121,32 @@ class SpatialHandlingUtils {
                 break;
         }
     }
+
+    static moveEyeHorizontal(angle, state) {
+        const deltaX = state.eye[0] - state.target[0];
+        const deltaY = state.eye[2] - state.target[2];
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
+        const currentAngle = Math.atan2(deltaY, deltaX);
+        const newAngle = currentAngle + angle;
+    
+        state.eye[0] = state.target[0] + distance * Math.cos(newAngle);
+        state.eye[2] = state.target[2] + distance * Math.sin(newAngle);
+    }
+    
+    static moveEyeVertical(angle, state) {
+        const deltaY = state.eye[2] - state.target[2];
+        const deltaZ = state.eye[1] - state.target[1];
+        const distance = Math.sqrt(deltaY * deltaY + deltaZ * deltaZ);
+    
+        const currentAngle = Math.atan2(deltaZ, deltaY);
+        const newAngle = currentAngle + angle;
+    
+        state.eye[1] = state.target[1] + distance * Math.sin(newAngle);
+        state.eye[2] = state.target[2] + distance * Math.cos(newAngle);
+    }
+    
+        
     static rotateTargetHorizontal(angle, state) {
         const deltaX = state.target[0] - state.eye[0];
         const deltaY = state.target[2] - state.eye[2];

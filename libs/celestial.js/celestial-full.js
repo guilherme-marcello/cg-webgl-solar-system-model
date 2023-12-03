@@ -338,6 +338,7 @@ function createJupiterMoon(gl, timescale, jupiter, name) {
 
     let buffer = twgl.primitives.createSphereBufferInfo(gl, moon.radius, 20, 20);
     let texture = twgl.createTexture(gl, { src: moon.textureSrc });
+    let phase = Math.random() * 10;
 
     let rotationPeriod = timescale * moon.rotationPeriod;
     let rotationAngularSpeed = 2*Math.PI / rotationPeriod;
@@ -346,10 +347,10 @@ function createJupiterMoon(gl, timescale, jupiter, name) {
     let translationPeriod = timescale * moon.translationPeriod;
     let translationAngularSpeed = 2*Math.PI / translationPeriod;
     let translationF = (time) => {
-        const x = moon.orbitRadius * Math.cos(translationAngularSpeed * time);
-        const y = moon.orbitRadius * Math.sin(translationAngularSpeed * time);
+        const x = moon.orbitRadius * Math.cos(translationAngularSpeed * time + phase);
+        const y = moon.orbitRadius * Math.sin(translationAngularSpeed * time + phase);
 
-        return twgl.m4.translation([x, Math.cos(time), y]);
+        return twgl.m4.translation([x, Math.cos(time + phase), y]);
     };
 
     return new CelestialBody(

@@ -62,7 +62,7 @@ class SpatialHandlingUtils {
         interactions.isDragging = false;
     }
     
-    static handleKeyDown(event, state, uniforms, interactions, earth, sun) {
+    static handleKeyDown(event, state, interactions, earth, sun) {
         const keyCode = event.keyCode;
         const rotationSpeed = 0.02;
 
@@ -80,7 +80,7 @@ class SpatialHandlingUtils {
                 this.rotateTargetVertical(-rotationSpeed, state);
                 break;
             case 79: // 'o'
-                uniforms.u_draw_orbits = 1 - uniforms.u_draw_orbits; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
+                interactions.enable_draw_orbits = 1 - interactions.enable_draw_orbits; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
                 break;
             case 49: // '1'
                 state.target = earth.extractCoordinates();

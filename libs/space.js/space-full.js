@@ -62,7 +62,7 @@ class SpatialHandlingUtils {
         interactions.isDragging = false;
     }
     
-    static handleKeyDown(event, state, interactions, earth, sun) {
+    static handleKeyDown(event, state, uniforms, interactions, earth, sun) {
         const keyCode = event.keyCode;
         const rotationSpeed = 0.02;
         const moveSpeed = 0.02;
@@ -121,6 +121,18 @@ class SpatialHandlingUtils {
                 break;
             case 77: // 'm'
                 interactions.enable_draw_moons = 1 - interactions.enable_draw_moons;
+                break;
+            case 55: // '7'
+                uniforms.u_ambient_enabled = 1 - uniforms.u_ambient_enabled;
+                console.log("Ambient component is now " + ((uniforms.u_ambient_enabled == 1 ? "enabled" : "disabled")));
+                break;
+            case 56: // '8'
+                uniforms.u_diffuse_enabled = 1 - uniforms.u_diffuse_enabled;
+                console.log("Diffuse component is now " + ((uniforms.u_diffuse_enabled == 1 ? "enabled" : "disabled")));
+                break;
+            case 57: // '9'
+                uniforms.u_specular_enabled = 1 - uniforms.u_specular_enabled;
+                console.log("Specular component is now " + ((uniforms.u_specular_enabled == 1 ? "enabled" : "disabled")));
                 break;
         }
     }

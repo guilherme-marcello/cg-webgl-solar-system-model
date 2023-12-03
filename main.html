@@ -158,6 +158,9 @@
   uniform vec4 u_specular;
   uniform float u_shininess;
   uniform int u_is_light_source;
+  uniform int u_ambient_enabled;
+  uniform int u_diffuse_enabled;
+  uniform int u_specular_enabled;
   
   void main() {
       // retrieve values from vs
@@ -188,16 +191,16 @@
       vec4 K_s = u_specular;
   
       // ambient reflection: ambientTerm := I_a * K_a
-      vec4 ambientTerm = I_a * K_a;
+      vec4 ambientTerm = (I_a * K_a) * vec4(u_ambient_enabled);
   
       // light source: lightSourceTerm := I_p * F_at
       vec4 lightSourceTerm = I_p * F_at;
   
       // diffuse reflection: diffuseTerm := K_d * (L . N)
-      vec4 diffuseTerm = K_d * LN;
+      vec4 diffuseTerm = (K_d * LN) * vec4(u_diffuse_enabled);
   
       // specular reflection: specularTerm := K_s * (R . V)^n
-      vec4 specularTerm = (LN > 0.0) ? K_s * pow(RV, n) : vec4(0.0);
+      vec4 specularTerm = (LN > 0.0) ? (K_s * pow(RV, n)) * vec4(u_specular_enabled): vec4(0.0);
 
       vec4 I;
       if (u_is_light_source == 0) {
@@ -290,7 +293,7 @@
     }
 
     // Event listeners for keys
-    window.addEventListener('keydown', (event) => space.SpatialHandlingUtils.handleKeyDown(event, state, interactions, earth, sun));
+    window.addEventListener('keydown', (event) => space.SpatialHandlingUtils.handleKeyDown(event, state, uniforms, interactions, earth, sun));
     
     // Event listeners for mouse
     window.addEventListener('mousedown', (event) => space.SpatialHandlingUtils.handleMouseDown(event, interactions));
@@ -304,6 +307,9 @@
       u_ambient: [0.1, 0.1, 0.1, 1],  // I_a (Ambient light intensity)
       u_specular: [1, 1, 1, 1], // K_s (Specular reflection coefficient)
       u_shininess: 30, // n
+      u_ambient_enabled: 1,
+      u_diffuse_enabled: 1,
+      u_specular_enabled: 1,
       u_diffuse: default_texture,
       u_is_light_source: 0,
     };

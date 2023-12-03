@@ -113,6 +113,7 @@
     const saturn = celestial.create(gl, timescale, "Saturn");
     const uranus = celestial.create(gl, timescale, "Uranus");
     const neptune = celestial.create(gl, timescale, "Neptune");
+    const triton = celestial.createNeptuneMoonTriton(gl, timescale, neptune);
     const pluto = celestial.create(gl, timescale, "Pluto");
 
     const celestial_bodies = [
@@ -126,6 +127,7 @@
         saturn,
         uranus,
         neptune,
+        triton,
         pluto
     ];
       

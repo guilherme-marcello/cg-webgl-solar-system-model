@@ -429,6 +429,43 @@ function createNeptune(gl, timescale) {
     return body;
 }
 
+function createNeptuneMoonTriton(gl, timescale, neptune) {
+    // texture src: Provide the link to the texture for Triton
+    let name = "Triton";
+    let yearPeriod = 5.876854; // 5.87685 days over Neptune
+    let dayPeriod = 5.876854; // same as year (synchronous rotation)
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.12, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/triton.webp' });
+
+    let rotationPeriod = timescale * dayPeriod;
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * yearPeriod;
+    let translationAngularSpeed = 2 * Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const a = 1.5; // semi-major axis
+        const b = 1; // semi-minor axis
+
+        const x = a * Math.cos(translationAngularSpeed * time);
+        const y = -b * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, 0.35*Math.cos(time), y]);
+    };
+
+    return new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod,
+        neptune
+    );
+}
+
 function createPluto(gl, timescale) {
     // texture src: https://en.wikipedia.org/wiki/Template:GeoTemplate/pluto
     let name = "Pluto";
@@ -508,4 +545,4 @@ function create(gl, timescale, name) {
 }
 
 
-export { create, createMoon};
+export { create, createMoon, createNeptuneMoonTriton};

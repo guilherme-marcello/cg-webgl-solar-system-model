@@ -312,6 +312,58 @@ function createJupiter(gl, timescale) {
     return body;
 }
 
+function createJupiterMoon(gl, timescale, jupiter, name) {
+    let moon = {};
+    switch (name.toLowerCase()) {
+        case "io":
+            // texture src: https://www.space.com/14977-jupiter-moon-io-global-map-photos.html
+            moon = { radius: 0.1, textureSrc: 'textures/io.jpeg', orbitRadius: 1, rotationPeriod: 1.769138, translationPeriod: 1.769138 };
+            break;
+        case "europa":
+            // texture src: https://www.deviantart.com/askaniy/art/Europa-Texture-Map-20K-769790967
+            moon = { radius: 0.15, textureSrc: 'textures/europa.jpeg', orbitRadius: 1.5, rotationPeriod: 3.551181, translationPeriod: 3.551181 };
+            break;
+        case "ganymede":
+            // texture src: https://commons.wikimedia.org/wiki/File:Map_of_Ganymede_by_Bj%C3%B6rn_J%C3%B3nsson.jpg
+            moon = { radius: 0.2, textureSrc: 'textures/ganymede.jpeg', orbitRadius: 2, rotationPeriod: 7.155, translationPeriod: 7.155 };
+            break;
+        case "callisto":
+            // texture src: https://bjj.mmedia.is/data/callisto/index.html
+            moon = { radius: 0.18, textureSrc: 'textures/callisto.jpg', orbitRadius: 2.5, rotationPeriod: 16.689, translationPeriod: 16.689 };
+            break;
+        default:
+            console.log("Invalid moon name");
+            return null;
+    }
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, moon.radius, 20, 20);
+    let texture = twgl.createTexture(gl, { src: moon.textureSrc });
+
+    let rotationPeriod = timescale * moon.rotationPeriod;
+    let rotationAngularSpeed = 2*Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * moon.translationPeriod;
+    let translationAngularSpeed = 2*Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const x = moon.orbitRadius * Math.cos(translationAngularSpeed * time);
+        const y = moon.orbitRadius * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, Math.cos(time), y]);
+    };
+
+    return new CelestialBody(
+        name,
+        buffer, 
+        texture, 
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod,
+        jupiter
+    );
+}
+
 function createSaturn(gl, timescale) {
     // texture src: https://nasa3d.arc.nasa.gov/detail/sat0fds1
     let name = "Saturn";
@@ -582,4 +634,4 @@ function create(gl, timescale, name) {
 }
 
 
-export { create, createMoon, createNeptuneMoonTriton, createSaturnMoonTitan};
+export { create, createMoon, createNeptuneMoonTriton, createSaturnMoonTitan, createJupiterMoon};

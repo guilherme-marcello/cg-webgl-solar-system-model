@@ -107,14 +107,18 @@
     const mercury = celestial.create(gl, timescale, "Mercury");
     const venus = celestial.create(gl, timescale, "Venus");
     const earth = celestial.create(gl, timescale, "Earth");
-    const moon = celestial.createMoon(gl, timescale, earth);
+      const moon = celestial.createMoon(gl, timescale, earth);
     const mars = celestial.create(gl, timescale, "Mars");
     const jupiter = celestial.create(gl, timescale, "Jupiter");
+      const io = celestial.createJupiterMoon(gl, timescale, jupiter, "io");
+      const europa = celestial.createJupiterMoon(gl, timescale, jupiter, "europa");
+      const ganymede = celestial.createJupiterMoon(gl, timescale, jupiter, "ganymede");
+      const callisto = celestial.createJupiterMoon(gl, timescale, jupiter, "callisto");
     const saturn = celestial.create(gl, timescale, "Saturn");
-    const titan = celestial.createSaturnMoonTitan(gl, timescale, saturn);
+      const titan = celestial.createSaturnMoonTitan(gl, timescale, saturn);
     const uranus = celestial.create(gl, timescale, "Uranus");
     const neptune = celestial.create(gl, timescale, "Neptune");
-    const triton = celestial.createNeptuneMoonTriton(gl, timescale, neptune);
+      const triton = celestial.createNeptuneMoonTriton(gl, timescale, neptune);
     const pluto = celestial.create(gl, timescale, "Pluto");
 
     const celestial_bodies = [
@@ -125,6 +129,10 @@
         moon,
         mars,
         jupiter,
+        io,
+        europa,
+        ganymede,
+        callisto,
         saturn,
         titan,
         uranus,

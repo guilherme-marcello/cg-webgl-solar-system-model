@@ -18,6 +18,13 @@
   uniform mat4 u_world;
   uniform mat4 u_viewInverse;
   uniform mat4 u_worldInverseTranspose;
+
+  uniform vec4 u_lightColor;
+  uniform vec4 u_ambient;
+  uniform sampler2D u_diffuse;
+  uniform vec4 u_specular;
+  uniform float u_shininess;
+  uniform int u_is_light_source;
   
   // vertex attributes
   attribute vec4 position;
@@ -30,18 +37,55 @@
   varying vec3 v_normal;
   varying vec3 v_surfaceToLight;
   varying vec3 v_surfaceToView;
-  varying float v_intensity; // intensity calculated in the vertex shader
+  varying vec4 v_intensity; // intensity calculated in the vertex shader
   
   void main() {
       // pass texture coordinates to fragment shader
       v_texCoord = texcoord;
-  
+
       // calculate lighting in the vertex shader
-      vec3 L = normalize(u_lightWorldPos - (u_world * position).xyz);
+      vec4 diffuseColor = texture2D(u_diffuse, texcoord);
       vec3 N = normalize((u_worldInverseTranspose * vec4(normal, 0)).xyz);
+      vec3 L = normalize(u_lightWorldPos - (u_world * position).xyz);
       vec3 V = normalize((u_viewInverse[3] - (u_world * position)).xyz);
-      float diffuseIntensity = max(dot(N, L), 0.0);
-      v_intensity = diffuseIntensity;
+      vec3 R = reflect(-L, N);
+      float n = u_shininess;
+      float F_at = 1.0;
+
+      float LN = max(dot(L, N), 0.0); // L.N
+      float RV = max(dot(R, V), 0.0); // R.V
+
+      vec4 I_a = u_ambient;
+      vec4 I_p = u_lightColor;
+  
+      vec4 K_a = diffuseColor;
+      vec4 K_d = diffuseColor;
+      vec4 K_s = u_specular;
+  
+      // ambient reflection: ambientTerm := I_a * K_a
+      vec4 ambientTerm = I_a * K_a;
+  
+      // light source: lightSourceTerm := I_p * F_at
+      vec4 lightSourceTerm = I_p * F_at;
+  
+      // diffuse reflection: diffuseTerm := K_d * (L . N)
+      vec4 diffuseTerm = K_d * LN;
+  
+      // specular reflection: specularTerm := K_s * (R . V)^n
+      vec4 specularTerm = (LN > 0.0) ? K_s * pow(RV, n) : vec4(0.0);
+
+      vec4 I;
+      if (u_is_light_source == 0) {
+          I = ambientTerm + lightSourceTerm * (diffuseTerm + specularTerm);
+      } else {
+          // is light source => just output the diffuse color
+          I = diffuseColor;
+      }
+  
+      // set alpha value
+      I.a = diffuseColor.a;
+
+      v_intensity = I;
   
       // pass other variables to the fragment shader
       v_position = u_worldViewProjection * position;
@@ -58,30 +102,11 @@
   precision mediump float;
 
   // varying variables from the vertex shader
-  varying vec4 v_position;
-  varying vec2 v_texCoord;
-  varying vec3 v_normal;
-  varying vec3 v_surfaceToLight;
-  varying vec3 v_surfaceToView;
-  varying float v_intensity;
-  
-  // uniforms for lighting
-  uniform vec4 u_lightColor;
-  uniform vec4 u_ambient;
-  uniform sampler2D u_diffuse;
+  varying vec4 v_intensity;
   
   void main() {
-      // retrieve values from vs
-      vec4 diffuseColor = texture2D(u_diffuse, v_texCoord);
-      vec4 ambientTerm = u_ambient * diffuseColor;
-      vec4 lightTerm = u_lightColor * v_intensity;
-  
-      vec4 I = ambientTerm + lightTerm;
-  
-      // set alpha value
-      I.a = diffuseColor.a;
-  
-      gl_FragColor = I;
+      // retrieve values from vs  
+      gl_FragColor = v_intensity;
   }  
 </script>
 

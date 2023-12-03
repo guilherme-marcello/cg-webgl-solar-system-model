@@ -430,7 +430,7 @@ function createNeptune(gl, timescale) {
 }
 
 function createNeptuneMoonTriton(gl, timescale, neptune) {
-    // texture src: Provide the link to the texture for Triton
+    // texture src: https://science.nasa.gov/neptune/moons/triton/
     let name = "Triton";
     let yearPeriod = 5.876854; // 5.87685 days over Neptune
     let dayPeriod = 5.876854; // same as year (synchronous rotation)

@@ -105,6 +105,7 @@ class SpatialHandlingUtils {
                 break;
             case 77: // 'm'
                 interactions.enable_draw_moons = 1 - interactions.enable_draw_moons;
+                break;
         }
     }
     

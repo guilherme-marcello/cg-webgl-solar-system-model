@@ -111,6 +111,7 @@
     const mars = celestial.create(gl, timescale, "Mars");
     const jupiter = celestial.create(gl, timescale, "Jupiter");
     const saturn = celestial.create(gl, timescale, "Saturn");
+    const titan = celestial.createSaturnMoonTitan(gl, timescale, saturn);
     const uranus = celestial.create(gl, timescale, "Uranus");
     const neptune = celestial.create(gl, timescale, "Neptune");
     const triton = celestial.createNeptuneMoonTriton(gl, timescale, neptune);
@@ -125,6 +126,7 @@
         mars,
         jupiter,
         saturn,
+        titan,
         uranus,
         neptune,
         triton,

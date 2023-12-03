@@ -351,6 +351,43 @@ function createSaturn(gl, timescale) {
     return body;
 }
 
+function createSaturnMoonTitan(gl, timescale, saturn) {
+    // texture src: https://www.go-astronomy.com/planets/saturn-moon-titan.htm
+    let name = "Titan";
+    let yearPeriod = 15.945; // orbital around Saturn
+    let dayPeriod = 15.945; // same as year (synchronous rotation)
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.15, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/titan.jpeg' });
+
+    let rotationPeriod = timescale * dayPeriod;
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    let translationPeriod = timescale * yearPeriod;
+    let translationAngularSpeed = 2 * Math.PI / translationPeriod;
+    let translationF = (time) => {
+        const a = 2; // semi-major axis
+        const b = 1; // semi-minor axis
+
+        const x = a * Math.cos(translationAngularSpeed * time);
+        const y = -b * Math.sin(translationAngularSpeed * time);
+
+        return twgl.m4.translation([x, Math.cos(time), y]);
+    };
+
+    return new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod,
+        saturn
+    );
+}
+
 function createUranus(gl, timescale) {
     // texture src: https://planetpixelemporium.com/uranus.html
     let name = "Uranus";
@@ -545,4 +582,4 @@ function create(gl, timescale, name) {
 }
 
 
-export { create, createMoon, createNeptuneMoonTriton};
+export { create, createMoon, createNeptuneMoonTriton, createSaturnMoonTitan};

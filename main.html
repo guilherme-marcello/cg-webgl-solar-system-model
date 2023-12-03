@@ -9,6 +9,82 @@
   <title>Projeto</title>
   <canvas id="c"></canvas>
 </body>
+<script id="gouraud-vs" type="notjs">
+  precision mediump float;
+
+  // uniforms for transformation and lighting
+  uniform mat4 u_worldViewProjection;
+  uniform vec3 u_lightWorldPos;
+  uniform mat4 u_world;
+  uniform mat4 u_viewInverse;
+  uniform mat4 u_worldInverseTranspose;
+  
+  // vertex attributes
+  attribute vec4 position;
+  attribute vec3 normal;
+  attribute vec2 texcoord;
+  
+  // varying variables to pass data from vertex to fragment shader
+  varying vec4 v_position;
+  varying vec2 v_texCoord;
+  varying vec3 v_normal;
+  varying vec3 v_surfaceToLight;
+  varying vec3 v_surfaceToView;
+  varying float v_intensity; // intensity calculated in the vertex shader
+  
+  void main() {
+      // pass texture coordinates to fragment shader
+      v_texCoord = texcoord;
+  
+      // calculate lighting in the vertex shader
+      vec3 L = normalize(u_lightWorldPos - (u_world * position).xyz);
+      vec3 N = normalize((u_worldInverseTranspose * vec4(normal, 0)).xyz);
+      vec3 V = normalize((u_viewInverse[3] - (u_world * position)).xyz);
+      float diffuseIntensity = max(dot(N, L), 0.0);
+      v_intensity = diffuseIntensity;
+  
+      // pass other variables to the fragment shader
+      v_position = u_worldViewProjection * position;
+      v_normal = N;
+      v_surfaceToLight = L;
+      v_surfaceToView = V;
+      
+      gl_Position = v_position;
+  }
+  
+</script>
+
+<script id="gouraud-fs" type="notjs">
+  precision mediump float;
+
+  // varying variables from the vertex shader
+  varying vec4 v_position;
+  varying vec2 v_texCoord;
+  varying vec3 v_normal;
+  varying vec3 v_surfaceToLight;
+  varying vec3 v_surfaceToView;
+  varying float v_intensity;
+  
+  // uniforms for lighting
+  uniform vec4 u_lightColor;
+  uniform vec4 u_ambient;
+  uniform sampler2D u_diffuse;
+  
+  void main() {
+      // retrieve values from vs
+      vec4 diffuseColor = texture2D(u_diffuse, v_texCoord);
+      vec4 ambientTerm = u_ambient * diffuseColor;
+      vec4 lightTerm = u_lightColor * v_intensity;
+  
+      vec4 I = ambientTerm + lightTerm;
+  
+      // set alpha value
+      I.a = diffuseColor.a;
+  
+      gl_FragColor = I;
+  }  
+</script>
+
 <script id="phong-vs" type="notjs">
   // uniforms for transformation and lighting
   uniform mat4 u_worldViewProjection;
@@ -119,7 +195,10 @@
 
     const m4 = twgl.m4;
     const gl = document.querySelector("canvas").getContext("webgl");
-    const programInfo = twgl.createProgramInfo(gl, ["phong-vs", "phong-fs"]);
+    const programInfos = [
+      twgl.createProgramInfo(gl, ["gouraud-vs", "gouraud-fs"]),
+      twgl.createProgramInfo(gl, ["phong-vs", "phong-fs"])
+    ];
 
     // texture src: https://in.pinterest.com/pin/white-texture-free-download-free-for-commercial-use-no-registration-required-add-a-subtle-white-te--430867889343458127/
     const default_texture = twgl.createTexture(gl, { src: 'textures/white.jpeg' });
@@ -181,7 +260,8 @@
       lastTS: 0,
       paused: false,
       enable_draw_orbits: 1,
-      enable_draw_moons: 1
+      enable_draw_moons: 1,
+      shading_selection: 1
     }
 
     // Event listeners for keys
@@ -235,6 +315,9 @@
       // view config
       const view = m4.inverse(m4.lookAt(state.eye, state.target, state.up));
       const viewProjection = m4.multiply(projection, view);
+
+      // shading selection
+      const programInfo = programInfos[interactions.shading_selection];
 
       celestial_bodies
         .filter(b => b.parent == null || interactions.enable_draw_moons) // draw only planets, if thats the case

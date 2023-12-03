@@ -92,8 +92,11 @@ class SpatialHandlingUtils {
             case 40: // Down Arrow
                 this.rotateTargetVertical(-rotationSpeed, state);
                 break;
+            case 66: // 'b'
+                interactions.shading_selection = 1 - interactions.shading_selection; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
+                break;
             case 79: // 'o'
-                interactions.enable_draw_orbits = 1 - interactions.enable_draw_orbits; // 1 => 1 - 1 = 0; 0 => 1 - 0 = 1
+                interactions.enable_draw_orbits = 1 - interactions.enable_draw_orbits;
                 break;
             case 49: // '1'
                 state.target = earth.extractCoordinates();

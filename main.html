@@ -155,7 +155,8 @@
       speedFactor: 1,
       lastTS: 0,
       paused: false,
-      enable_draw_orbits: 1
+      enable_draw_orbits: 1,
+      enable_draw_moons: 1
     }
 
     // Event listeners for keys
@@ -211,34 +212,36 @@
       const view = m4.inverse(m4.lookAt(state.eye, state.target, state.up));
       const viewProjection = m4.multiply(projection, view);
 
-      celestial_bodies.forEach((body, index) => {
-        body.updateWorldMatrix(time);
-        uniforms.u_world = body.worldMatrix;
-        uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(body.worldMatrix));
-        uniforms.u_worldViewProjection = m4.multiply(viewProjection, body.worldMatrix);
-        uniforms.u_diffuse = body.texture || default_texture;
-        
-        if (body.name == "Sun") uniforms.u_is_light_source = 1;
-        gl.useProgram(programInfo.program);
-        twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
-        twgl.setUniforms(programInfo, uniforms);
-        twgl.drawBufferInfo(gl, body.buffer);
-        if (body.name == "Sun") uniforms.u_is_light_source = 0;
-
-        if (interactions.enable_draw_orbits == 1 && body.path != null) {
-          uniforms.u_is_light_source = 1; // push
-          for (const part of body.path) {
-            uniforms.u_world = part.worldMatrix;
-            uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(part.worldMatrix));
-            uniforms.u_worldViewProjection = m4.multiply(viewProjection, part.worldMatrix);
-            uniforms.u_diffuse = default_texture;
+      celestial_bodies
+        .filter(b => b.parent == null || interactions.enable_draw_moons) // draw only planets, if thats the case
+          .forEach((body, index) => {
+            body.updateWorldMatrix(time);
+            uniforms.u_world = body.worldMatrix;
+            uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(body.worldMatrix));
+            uniforms.u_worldViewProjection = m4.multiply(viewProjection, body.worldMatrix);
+            uniforms.u_diffuse = body.texture || default_texture;
+            
+            if (body.name == "Sun") uniforms.u_is_light_source = 1;
             gl.useProgram(programInfo.program);
-            twgl.setBuffersAndAttributes(gl, programInfo, part.buffer);
+            twgl.setBuffersAndAttributes(gl, programInfo, body.buffer);
             twgl.setUniforms(programInfo, uniforms);
-            twgl.drawBufferInfo(gl, part.buffer);
-          }
-          uniforms.u_is_light_source = 0; // pop
-        }
+            twgl.drawBufferInfo(gl, body.buffer);
+            if (body.name == "Sun") uniforms.u_is_light_source = 0;
+
+            if (interactions.enable_draw_orbits == 1 && body.path != null) {
+              uniforms.u_is_light_source = 1; // push
+              for (const part of body.path) {
+                uniforms.u_world = part.worldMatrix;
+                uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(part.worldMatrix));
+                uniforms.u_worldViewProjection = m4.multiply(viewProjection, part.worldMatrix);
+                uniforms.u_diffuse = default_texture;
+                gl.useProgram(programInfo.program);
+                twgl.setBuffersAndAttributes(gl, programInfo, part.buffer);
+                twgl.setUniforms(programInfo, uniforms);
+                twgl.drawBufferInfo(gl, part.buffer);
+              }
+              uniforms.u_is_light_source = 0; // pop
+            }
       })
       requestAnimationFrame(render);
     }

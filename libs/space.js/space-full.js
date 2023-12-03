@@ -103,6 +103,8 @@ class SpatialHandlingUtils {
                 interactions.speedFactor = Math.min(interactions.speedFactor * 10, 1000);
                 console.log("New speedFactor is " + interactions.speedFactor);
                 break;
+            case 77: // 'm'
+                interactions.enable_draw_moons = 1 - interactions.enable_draw_moons;
         }
     }
     

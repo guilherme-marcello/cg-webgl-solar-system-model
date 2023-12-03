@@ -76,7 +76,7 @@
       temp = lit(dot(a_normal, surfaceToLight), dot(a_normal, halfVector), u_shininess);
     }
     else {
-      temp = lit(abs(dot(a_normal, surfaceToLight)), dot(a_normal, halfVector), u_shininess);
+      temp = vec4(1,1,1,1);//lit(abs(dot(a_normal, surfaceToLight)), dot(a_normal, halfVector), u_shininess);
     }
 
     vec4 litR = temp;
@@ -120,6 +120,7 @@
     const neptune = celestial.create(gl, timescale, "Neptune");
       const triton = celestial.createNeptuneMoonTriton(gl, timescale, neptune);
     const pluto = celestial.create(gl, timescale, "Pluto");
+      const charon = celestial.createPlutoMoonCharon(gl, timescale, pluto);
 
     const celestial_bodies = [
         sun,
@@ -138,7 +139,8 @@
         uranus,
         neptune,
         triton,
-        pluto
+        pluto,
+        charon
     ];
       
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // black background
@@ -171,7 +173,7 @@
     const uniforms = {
       u_lightWorldPos: sun.worldMatrix,
       u_lightColor: [1, 0.8, 0.8, 1],
-      u_ambient: [0.2, 0.2, 0.2, 1],
+      u_ambient: [0.8, 0.8, 0.8, 1],
       u_specular: [1, 1, 1, 1],
       u_shininess: 30,
       u_specularFactor: 1,

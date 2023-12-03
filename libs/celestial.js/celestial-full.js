@@ -219,7 +219,7 @@ function createMoon(gl, timescale, earth) {
         const x = a * Math.cos(translationAngularSpeed * time);
         const y = -b * Math.sin(translationAngularSpeed * time);
     
-        return twgl.m4.translation([x, 0.5*Math.cos(time), y]);
+        return m4.translation([x, 0.5*Math.cos(time), y]);
     };
 
     return new CelestialBody(
@@ -596,6 +596,44 @@ function createPluto(gl, timescale) {
 }
 
 
+
+
+function createPlutoMoonCharon(gl, timescale, pluto) {
+    // texture src: https://nasa3d.arc.nasa.gov/detail/plu1rss1
+    let name = "Charon";
+
+    let buffer = twgl.primitives.createSphereBufferInfo(gl, 0.05, 20, 20);
+    let texture = twgl.createTexture(gl, { src: 'textures/charon.jpeg' });
+
+    let rotationPeriod = pluto.rotationPeriod; // same as pluto!
+    let rotationAngularSpeed = 2 * Math.PI / rotationPeriod;
+    let rotationF = (time) => m4.rotationY(rotationAngularSpeed * time);
+
+    // Charon is assumed to be tidally locked to Pluto
+    let translationPeriod = null;
+    let translationF = (time) => {
+        const a = 0.3; // semi-major axis
+        const b = 0.3; // semi-minor axis
+
+        const x = a * Math.cos(rotationAngularSpeed * time);
+        const y = -b * Math.sin(rotationAngularSpeed * time);
+
+        return twgl.m4.translation([x, 0, y]);
+    };
+
+    return new CelestialBody(
+        name,
+        buffer,
+        texture,
+        rotationF,
+        translationF,
+        rotationPeriod,
+        translationPeriod,
+        pluto
+    );
+}
+
+
 function create(gl, timescale, name) {
     switch (name.toLowerCase()) {
         case "sun":
@@ -635,4 +673,4 @@ function create(gl, timescale, name) {
 }
 
 
-export { create, createMoon, createNeptuneMoonTriton, createSaturnMoonTitan, createJupiterMoon};
+export { create, createMoon, createNeptuneMoonTriton, createSaturnMoonTitan, createJupiterMoon, createPlutoMoonCharon };
